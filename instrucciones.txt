@@ -1,0 +1,47 @@
+Instalar:
+python3
+pip
+pip install virtualenv
+pip install django
+
+virtualenv <Nombre> -> crea el entorno virtual
+source <nombre>/bin/activate ->Activa el entorno Linux
+.\<Nombre>\Scripts\activate -> activa el entorno Windows
+
+deactivate -> Finaliza el entorno virtual
+
+Se deben volver a instalar los paquetes dentro del entorno virtual con pip
+
+se crea el proyecto de django con: -> django-admin.py startproject <Nombre>
+
+Se levanta la app con ->  python3 manage.py runserver
+
+Actualiza la base de datos (Migracion) -> python3 manage.py makemigrations
+Y luego -> python3 manage.py migrate
+
+Se crea la app de django -> python3 manage.py startapp <Nombre>
+
+Se crean modelos de BD en models.py
+se hace una funcion para que retornen el nombre de la entrada del modelo
+
+Se pueden verificar errores con -> python3 manage.py check
+
+Se debe instalar la aplicacion que creamos poniendo en el archivo settings.py, que se encuentra en la carpeta del proyecto de django en la sección INSTALLED_APPS, añadimos la app -> <nombre_app>.apps.<metodo_inicializacion>
+
+para entrar al admin de la app se utiliza en la url de la app -> localhost:8000/admin
+
+Se crea un super usuario para utilizar en el /user con -> python3 manage.py createsuperuser
+Con este usuario se hace login en la app y se pueden administrar distintas cosas
+
+para que el admin reconozca los modelos se deben añadir a admin.py -> admin.site.register(<Modelo>)
+
+En Views.py se crean las vistas de la app, pero para que sean accesibles deben llamarse por medio de un URL, se crea un archivo en la carpeta de la app llamado urls.py, el cual define las urls de la app (Como un dicionario) y luego se añade la url al archivo urls.py del proyeto de django
+https://docs.djangoproject.com/en/2.0/topics/http/urls/ 
+
+para que sean unas vistas buenas, se deben crear en views.py con formato html, usando templates, para esto en el archivo settings.py, de la carpeta del proyecto, en templates -> dirs, 
+
+Instalar snippets en sublime
+
+Se pueden manejar imagenes con el paquete pillow
+En el modelo podemos poner campos de tipo Image, pero debe especificarse donde los guarda, en el settings.py (ver ejemplo)
+para acceder a ellas se crea una carpeta de archivos estaticos en el settings y con esto podemos importar css, imagenes, etc.
