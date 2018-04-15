@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+	<h1>Agregar usuario</h1>
+
+	{% if user.is_authenticated %}
+		
+		{% if user.profile.tipo == "admin" %}	
+		<form action="" method="post">
+			{% csrf_token %}
+			<input type="text" name="username">
+			<input type="password" name="password">
+			<input type="text" name="tipo">
+			<button type="submit">Signup</button>
+		</form>
+			
+		{% else %}
+		<a href="/">Inicio</a>
+		{% endif %}
+	{% else %}
+		<a href="/login">Ingresar</a>
+	{% endif %}
+
+{% endblock %}
