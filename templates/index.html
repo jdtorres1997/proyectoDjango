@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html >
+<head>
+  {% load staticfiles %}
+  <meta charset="UTF-8">
+  <title>Only CSS3 Dropdown Menu</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  
+</head>
+
+<body>
+<div class="cuadrado"></div>  
+<div class="cuadradoGigante">
+<div class="container">
+  <h1 class="title">Los Arandanos</h1>
+  <ul>
+    <li class="dropdown">
+      <input type="checkbox" />
+      <a href="#" data-toggle="dropdown">First Menu</a>
+      <ul class="dropdown-menu">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <input type="checkbox" />
+      <a href="#" data-toggle="dropdown">Second Menu</a>
+      <ul class="dropdown-menu">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </li>
+    <li class="dropdown">
+      <input type="checkbox" />
+      <a href="#" data-toggle="dropdown">Third Menu</a>
+      <ul class="dropdown-menu">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </li>
+  </ul>
+</div> 
+
+<div class="derecha"> 
+  {% block login_content %} {% endblock %}
+  {% block content %} {% endblock %}
+
+</div>
+  
+</div>  
+
+  
+  
+</body>
+</html>
