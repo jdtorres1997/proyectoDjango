@@ -45,3 +45,8 @@ Instalar snippets en sublime
 Se pueden manejar imagenes con el paquete pillow
 En el modelo podemos poner campos de tipo Image, pero debe especificarse donde los guarda, en el settings.py (ver ejemplo)
 para acceder a ellas se crea una carpeta de archivos estaticos en el settings y con esto podemos importar css, imagenes, etc.
+
+Para migrar a postgresql se debe instalar el paquete psycopg2 y cambiar configuraciones en el settings.py (Ya está cambiado)
+
+Se debe crear el super admin y darle privilegios desde pgadmin asi:
+update appprincipal_profile set tipo = 'admin' where id='1'
