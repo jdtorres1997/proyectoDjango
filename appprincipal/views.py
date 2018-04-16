@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
+from django.template import loader
+from django.http import HttpResponse, HttpResponseRedirect
 
 # Create your views here.
 
@@ -11,13 +13,15 @@ def autenticar(request):
 		username = request.POST.get('username', None)
 		password = request.POST.get('password', None)
 		user = authenticate(username=username, password=password)
-		login(request, user)	
+		if(user != None):
+			login(request, user)	
 		return redirect('/')
 
-	return render(request, 'login.html', {})
-	
+	return render(request, 'login.html', {})	
+
 def inicio(request):
 	return render(request, 'inicio.html', {})
+
 
 def agregarusuario(request):
 
@@ -31,3 +35,14 @@ def agregarusuario(request):
 		return redirect('/')
 
 	return render(request, 'agregarUsuario.html', {})
+
+
+def gestionarusuarios(request):
+	usuarios = User.objects.order_by('id')
+	template = loader.get_template('usuarios.html')
+	
+	context = {
+		'usuarios' : usuarios
+	}
+	return HttpResponse(template.render(context, request))
+	

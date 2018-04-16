@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+	<h1>Gestion de usuarios</h1>
+
+	{% if user.is_authenticated %}
+		
+		{% if user.profile.tipo == "admin" %}	
+		<a href="/agregarusuario">Agregar Usuario</a>
+		<h1></h1>
+		<a href="/">Inicio</a>
+		<ul>
+		{% for u in usuarios %}
+			<li>
+				{{ u.username }} | 
+				{{ u.profile.tipo }} |
+				
+				
+			</li>
+		{% endfor %}
+		{% endif %}
+		</ul>
+	{% else %}
+		<a href="/login">Ingresar</a>
+	{% endif %}
+
+{% endblock %}
