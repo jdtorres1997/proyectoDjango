@@ -1,0 +1,26 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+	<h1>Crud usuario {{ usuario.username }}</h1>
+
+	<form action="" method="post">
+		{% csrf_token %}
+		<input type="hidden" name="accion" value="modificar">
+		<input type="text" name="name" value="{{ usuario.last_name }}">
+		<input type="text" name="username" value="{{ usuario.username }}">
+		<input type="password" name="password" value="{{ usuario.password }}">
+		<input type="email" name="email" value="{{ usuario.email }}">
+		<input type="text" name="tipo" value="{{ usuario.profile.tipo }}">
+		<button type="submit">Modificar</button>
+
+	</form>
+
+	<form action="" method="post">
+		{% csrf_token %}
+		<input type="hidden" name="accion" value="eliminar">
+		<button type="submit">Eliminar</button>
+
+	</form>
+
+{% endblock %}

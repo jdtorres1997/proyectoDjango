@@ -4,21 +4,21 @@
 
 	<h1>Agregar usuario</h1>
 
-	{% if user.is_authenticated %}
+	
 		
-		{% if user.profile.tipo == "admin" %}	
-		<form action="" method="post">
-			{% csrf_token %}
-			<input type="text" name="username">
-			<input type="password" name="password">
-			<input type="text" name="tipo">
-			<button type="submit">Signup</button>
-		</form>
+			
+	<form action="" method="post">
+		{% csrf_token %}
+		<input type="text" name="name">
+		<input type="text" name="username">
+		<input type="password" name="password">
+		<input type="email" name="email">
+		<input type="text" name="tipo">
+		<button type="submit">Signup</button>
+	</form>
+	
+	<a href="/usuarios">Inicio</a>
 		
-		<a href="/usuarios">Inicio</a>
-		{% endif %}
-	{% else %}
-		<a href="/login">Ingresar</a>
-	{% endif %}
+	
 
 {% endblock %}
