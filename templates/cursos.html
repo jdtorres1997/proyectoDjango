@@ -1,0 +1,25 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+	<h1>Gestion de cursos</h1>
+
+	
+		
+		
+	<a href="/cursos/new">Agregar Curso</a>
+	<h1></h1>
+	<a href="/">Inicio</a>
+	<ul>
+	{% for c in cursos %}
+		<li>
+			<a href="/cursos/{{ c.codigo }}">
+			{{ c.nombre }} 
+			</a>
+		</li>
+	{% endfor %}
+	
+	</ul>
+	
+
+{% endblock %}

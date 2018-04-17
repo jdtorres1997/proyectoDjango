@@ -28,20 +28,15 @@ class Programa(models.Model):
 
 	class Meta:
 		ordering = ('codigo',)
-
-
-
-'''
-class Product(models.Model):
-	nombre = models.CharField(max_length=255)
-	descripcion = models.CharField(max_length=255)
-	categoria = models.CharField(max_length=255)
-	precio = models.DecimalField(max_digits=6, decimal_places=2)
-	imagen = models.ImageField(blank=True)
-	
-	def __str__(self): 
-		return self.nombre
-
-	class Meta:
-		ordering = ('id',)
-		'''
+    
+class Curso(models.Model):
+	codigo=models.CharField(max_length=10, primary_key=True)
+	nombre=models.CharField(max_length=40)
+	creditos=models.IntegerField()
+	horas_clase_magistral=models.IntegerField()
+	horas_estudio_independiente=models.IntegerField()
+	tipo_curso=models.CharField(max_length=20)
+	validable=models.CharField(max_length=2) #Solo se acepta si o no
+	habilitable=models.CharField(max_length=2) #Solo se acepta si o no
+	programa=models.CharField(max_length=20) #debe cambiarse por llave foranea
+	semestre=models.IntegerField()
