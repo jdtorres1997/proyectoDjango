@@ -1,6 +1,14 @@
+
+#aqui se almacenan los formularios, credos a partir de los modelos
+
 from django import forms
+from .models import Programa
 from .models import Curso
 
+class ProgramaForm(forms.ModelForm):
+	class Meta:
+		model = Programa
+    
 class CursoForm(forms.ModelForm):
 	class Meta:
 		model = Curso

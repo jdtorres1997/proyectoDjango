@@ -16,6 +16,19 @@ class Profile(models.Model):
 	def save_user_profile(sender, instance, **kwargs):
 		instance.profile.save()
 
+class Programa(models.Model):
+	codigo = models.CharField(max_length=255, primary_key=True)
+	nombre_programa = models.CharField(max_length=255)
+	escuela = models.CharField(max_length=255)
+	numero_semestres =  models.CharField(max_length=255)
+	numero_creditos_graduacion = models.CharField(max_length=255)
+
+	def __str__(self): 
+		return self.nombre
+
+	class Meta:
+		ordering = ('codigo',)
+    
 class Curso(models.Model):
 	codigo=models.CharField(max_length=10, primary_key=True)
 	nombre=models.CharField(max_length=40)
@@ -27,4 +40,3 @@ class Curso(models.Model):
 	habilitable=models.CharField(max_length=2) #Solo se acepta si o no
 	programa=models.CharField(max_length=20) #debe cambiarse por llave foranea
 	semestre=models.IntegerField()
-

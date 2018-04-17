@@ -1,0 +1,28 @@
+{% extends "index.html" %}
+
+{% block content %}
+<a href="/programas"> Atras </a>
+	<h1 style="color:red">
+		Gestion de programas
+	</h1>
+	<a href="/programas/new">Agregar Programa</a>
+	<ul>
+		{% for pr in programas %}
+
+			<li>
+				{{ pr.nombre_programa }}  - {{ pr.codigo }} |
+				<a href="/programas/ver/{{ pr.codigo }}"> 
+					<img src="../media/add.png" alt = "" width="35px">
+				 </a> |
+				<a href="/programas/editar/{{ pr.codigo }}"> 
+					<img src="../media/edit.png"alt = "" width="40px"> 
+				</a> |
+				<a href="/programas/eliminar/{{ pr.codigo }}"> 
+					<img src="../media/delete.png" alt = "" width="40px"> 
+				</a> |
+				
+			</li>
+		{% endfor %}
+	</ul>
+
+{% endblock %}

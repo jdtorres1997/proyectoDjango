@@ -12,6 +12,11 @@ urlpatterns = [
 	path('usuarios/consultar/<pk>', views.detalleUsuario, name='crudUsuario'),
 	path('usuarios/editar/<pk>', views.modificarUsuario, name='crudUsuario'),
 	path('usuarios/eliminar/<pk>', views.eliminarUsuario),
+	path('programas/', views.gestionarprogramas, name='gestionarprogramas'),
+	path('programas/new', views.agregarprograma, name='agregarprograma'),
+	path('programas/editar/<codigo>', views.editarPrograma, name='editarprograma'),
+	path('programas/eliminar/<codigo>', views.eliminarPrograma, name='eliminarprograma'),
+	path('programas/ver/<codigo>', views.verPrograma, name='verprograma')
 	path('cursos', views.gestionarCursos, name='gestionarcursos'),
 	path('cursos/', views.gestionarCursos, name='gestionarcursos'),
 	path('cursos/new', views.agregarCurso, name='agregarCurso'),
