@@ -5,6 +5,8 @@ from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect
 from .models import Curso
 from .forms import CursoForm
+from django import forms
+
 
 # Create your views here.
 
@@ -66,43 +68,60 @@ def gestionarusuarios(request):
 def detalleUsuario(request, pk):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'admin'):
+			return redirect('/') #Cambiar-----------------------
+		else:
+			return redirect('/')
+	else:
+		return redirect('/')
+
+def modificarUsuario(request, pk):
+	if(request.user.is_authenticated):
+		if(request.user.profile.tipo == 'admin'):
 			if(request.method == 'POST'):
-				accion = request.POST.get('accion', None)
-
-				if(accion == "modificar"):
-					username = request.POST.get('username', None)
-					name = request.POST.get('name', None)
-					password = request.POST.get('password', None)
-					email = request.POST.get('email', None)
-					tipo = request.POST.get('tipo', None)
-					usuario = get_object_or_404(User, pk=pk)
-					if(username != ""):
-						usuario.username = username
-					if(password != ""):
-						usuario.password = password
-					if(tipo != ""):
-						usuario.profile.tipo = tipo
-					if(name != ""):
-						usuario.last_name = name
-					if(email != ""):
-						usuario.email = email
-					usuario.save()
-
-				elif(accion == "eliminar"):
-					password = request.POST.get('password', None)
-					user = User.objects.get(pk=pk)
-					user.delete()
-
-					
+				
+				username = request.POST.get('username', None)
+				name = request.POST.get('name', None)
+				password = request.POST.get('password', None)
+				email = request.POST.get('email', None)
+				tipo = request.POST.get('tipo', None)
+				usuario = get_object_or_404(User, pk=pk)
+				if(username != ""):
+					usuario.username = username
+				if(password != ""):
+					usuario.password = password
+				if(tipo != ""):
+					usuario.profile.tipo = tipo
+				if(name != ""):
+					usuario.last_name = name
+				if(email != ""):
+					usuario.email = email
+				usuario.save()
 				return redirect('/usuarios')
 
 			else:
 				usuario = get_object_or_404(User, pk=pk) #Saca un objeto que su pk sea igual a la ingresada
-				template = loader.get_template('usuario.html') 
+				template = loader.get_template('modificarUsuario.html') 
 				context = {
 					'usuario': usuario
 				}
 				return HttpResponse(template.render(context, request))
+		else:
+			return redirect('/')
+	else:
+		return redirect('/')
+
+def eliminarUsuario(request, pk):
+	if(request.user.is_authenticated):
+		if(request.user.profile.tipo == 'admin'):
+			if(request.method == 'POST'):
+				opcion = request.POST.get('opcion', None)
+				if(opcion == 'si'):
+					user = User.objects.get(pk=pk)
+					user.delete()
+				
+				return redirect('/usuarios')
+			else:
+				return redirect('/usuarios')#Mostrar el template para eliminar
 		else:
 			return redirect('/')
 	else:
@@ -154,21 +173,46 @@ def modificarCurso(request, codigo):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'director'):
 			if(request.method == 'POST'):
-				form = CursoForm(request.POST)
+				curso = Curso.objects.get(codigo=codigo)
+				form = CursoForm(data = request.POST or None , instance=curso)
 				if form.is_valid():
-					curso = Curso.objects.get(codigo=codigo)
-					curso = form.get()
-					curso.save()
+					form.save()
 					return HttpResponseRedirect('/cursos')
 			
-			form = CursoForm()
-
+			curso = Curso.objects.get(codigo=codigo)
+			form = CursoForm(instance = curso)
+			form.fields['codigo'].widget = forms.HiddenInput()
 			template = loader.get_template('modificarCurso.html')
 	
 			context = {
 				'form' : form
 			}
 			return HttpResponse(template.render(context, request))
+		else:
+			return redirect('/')
+	else:
+		return redirect('/')
+
+def eliminarCurso(request, codigo):
+	if(request.user.is_authenticated):
+		if(request.user.profile.tipo == 'director'):
+			if(request.method == 'POST'):
+				opcion = request.POST.get('opcion', None)
+				if(opcion == 'si'):
+					curso = Curso.objects.get(codigo=codigo)
+					curso.delete()
+				return redirect('/cursos')
+			else:
+				return redirect('/cursos')#Mostrar el template para eliminar
+		else:
+			return redirect('/')
+	else:
+		return redirect('/')
+
+def consultarCurso(request, codigo):
+	if(request.user.is_authenticated):
+		if(request.user.profile.tipo == 'director'):
+			return redirect('/') #Cambiar-----------------------
 		else:
 			return redirect('/')
 	else:
