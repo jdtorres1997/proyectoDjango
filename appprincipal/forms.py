@@ -8,6 +8,7 @@ from .models import Curso
 class ProgramaForm(forms.ModelForm):
 	class Meta:
 		model = Programa
+		fields = '__all__'
     
 class CursoForm(forms.ModelForm):
 	class Meta:
