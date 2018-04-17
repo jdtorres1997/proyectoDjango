@@ -67,7 +67,7 @@ def detalleUsuario(request, pk):
 			if(request.method == 'POST'):
 				accion = request.POST.get('accion', None)
 
-				if(accion == "consultar"):
+				if(accion == "modificar"):
 					username = request.POST.get('username', None)
 					name = request.POST.get('name', None)
 					password = request.POST.get('password', None)
@@ -85,20 +85,22 @@ def detalleUsuario(request, pk):
 					if(email != ""):
 						usuario.email = email
 					usuario.save()
-					
+					'''
 					usuario = get_object_or_404(User, pk=pk) #Saca un objeto que su pk sea igual a la ingresada
 					template = loader.get_template('usuario.html') 
 					context = {
 						'usuario': usuario
 					}
 					return HttpResponse(template.render(context, request))
+					'''
 
 				elif(accion == "eliminar"):
 					password = request.POST.get('password', None)
 					user = User.objects.get(pk=pk)
 					user.delete()
 
-					return redirect('/usuarios')
+					#return redirect('/usuarios')
+				return redirect('/usuarios')
 
 			else:
 				usuario = get_object_or_404(User, pk=pk) #Saca un objeto que su pk sea igual a la ingresada
