@@ -17,7 +17,7 @@ class Profile(models.Model):
 		instance.profile.save()
 
 class Curso(models.Model):
-	codigo=models.TextField(max_length=10, primary_key=True)
+	codigo=models.CharField(max_length=10, primary_key=True)
 	nombre=models.CharField(max_length=40)
 	creditos=models.IntegerField()
 	horas_clase_magistral=models.IntegerField()

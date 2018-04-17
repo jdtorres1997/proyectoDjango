@@ -10,4 +10,8 @@ urlpatterns = [
 	path('usuarios/new', views.agregarusuario, name='agregarusuario'),
 	path('usuarios/', views.gestionarusuarios, name= 'gestionarusuarios'),
 	path('usuarios/<pk>', views.detalleUsuario, name='crudUsuario'),
+	path('cursos', views.gestionarCursos, name='gestionarcursos'),
+	path('cursos/', views.gestionarCursos, name='gestionarcursos'),
+	path('cursos/new', views.agregarCurso, name='agregarCurso'),
+	path('cursos/editar/<codigo>', views.modificarCurso),
 ]
