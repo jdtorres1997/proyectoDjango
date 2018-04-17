@@ -3,9 +3,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect
+from .forms import ProgramaForm
+from .models import Programa
+from django import forms
 
 # Create your views here.
-
 def autenticar(request):
 	
 	if(request.method == 'POST'):
@@ -113,3 +115,114 @@ def detalleUsuario(request, pk):
 			return redirect('/')
 	else:
 		return redirect('/')
+
+
+
+def agregarprograma(request):
+
+	if request.method == 'POST':
+		form = ProgramaForm(request.POST, request.FILES)
+		if form.is_valid():
+			programa = form.save()
+			programa.save()
+			return HttpResponseRedirect('/programas')
+	form = ProgramaForm()
+	template = loader.get_template('agregarPrograma.html')
+	context = {
+		'form' : form
+	}
+	return HttpResponse(template.render(context, request))
+
+
+def gestionarprogramas(request):
+
+	if(request.user.is_authenticated):
+		if(request.user.profile.tipo == 'decano'):
+			programas = Programa.objects.order_by('codigo')
+			template = loader.get_template('programas.html')
+			context = { #Diccionario que se le pasa al HTML
+				'programas': programas
+			}
+			return HttpResponse(template.render(context, request))
+		else:
+			return redirect('/nopermisos')
+	else:
+		return redirect('/login')
+
+def editarPrograma(request, codigo):
+
+	if(request.user.is_authenticated):
+		if(request.user.profile.tipo == 'decano'):
+			if request.method == 'POST':
+				#Actualiza
+				programa = Programa.objects.get(codigo=codigo);
+				form = ProgramaForm(request.POST, instance=programa)
+				if form.is_valid():
+					form.save()
+					return HttpResponseRedirect('/programas')
+				else:
+					#form = ProgramaForm()
+					template = loader.get_template('editarPrograma.html')
+					context = {
+					'form' : form
+					}
+					return HttpResponse(template.render(context, request))
+			else:
+				#Mostrar en editar/<pk>
+				programa =  Programa.objects.get(codigo=codigo)
+				form = ProgramaForm(instance=programa)
+				#form.fields["codigo"].initial= programa.codigo
+				#form.fields['codigo'].widget.attrs['readonly'] = True # text input
+				form.fields['codigo'].widget = forms.HiddenInput()
+				#form.fields["nombre_programa"].initial= programa.nombre_programa
+				#form.fields["escuela"].initial= programa.escuela
+				#form.fields["numero_semestres"].initial= programa.numero_semestres
+				#form.fields["numero_creditos_graduacion"].initial= programa.numero_creditos_graduacion
+				template = loader.get_template('editarPrograma.html')
+				context = { #Diccionario que se le pasa al HTML
+				'form': form,
+				'pr' : programa
+				}
+				return HttpResponse(template.render(context, request))
+		else:
+			return redirect('/nopermisos')
+	else:
+		return redirect('/login')
+
+def eliminarPrograma(request, codigo):
+	if(request.user.is_authenticated):
+		if(request.user.profile.tipo == 'decano'):
+			if request.method == 'POST':
+				respuesta = request.POST.get('opcion', None)
+				if(respuesta=="si"):
+					programa = Programa.objects.get(codigo=codigo);
+					programa.delete()
+				return redirect('/programas')
+			else:
+				#Mostrar en eliminar/<pk>
+				programa =  Programa.objects.get(codigo=codigo)
+				template = loader.get_template('confirmar.html')
+				context = { #Diccionario que se le pasa al HTML
+				'pr' : programa
+				}
+				return HttpResponse(template.render(context, request))
+		else:
+			return redirect('/nopermisos')
+	else:
+		return redirect('/login')
+
+def verPrograma(request,codigo):
+	if(request.user.is_authenticated):
+		if(request.user.profile.tipo == 'decano'):
+			#Tabla a HTML
+			programa = Programa.objects.get(codigo=codigo)
+			form = ProgramaForm(instance=programa)
+			template = loader.get_template('tabla.html')
+			context = { #Diccionario que se le pasa al HTML
+				'form' : form
+			}
+			return HttpResponse(template.render(context, request))
+		else:
+			return redirect('/nopermisos')
+	else:
+		return redirect('/login')

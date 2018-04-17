@@ -16,6 +16,21 @@ class Profile(models.Model):
 	def save_user_profile(sender, instance, **kwargs):
 		instance.profile.save()
 
+class Programa(models.Model):
+	codigo = models.CharField(max_length=255, primary_key=True)
+	nombre_programa = models.CharField(max_length=255)
+	escuela = models.CharField(max_length=255)
+	numero_semestres =  models.CharField(max_length=255)
+	numero_creditos_graduacion = models.CharField(max_length=255)
+
+	def __str__(self): 
+		return self.nombre
+
+	class Meta:
+		ordering = ('codigo',)
+
+
+
 '''
 class Product(models.Model):
 	nombre = models.CharField(max_length=255)

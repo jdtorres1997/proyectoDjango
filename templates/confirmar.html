@@ -1,0 +1,10 @@
+{% extends "index.html" %}
+
+{% block content %}
+	<h1> ¿Esta seguro que desea borrar  {{ pr.nombre_programa }}  - {{ pr.codigo }} ? </h1>
+	<form method="POST" enctype="multipart/form-data">
+		{% csrf_token %}
+		<button name="opcion" type='submit' value="no">No</button>
+		<button name="opcion" type="submit" value="si">Si, borrar</button>
+	</form>
+{% endblock %}

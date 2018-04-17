@@ -1,0 +1,14 @@
+{% extends "index.html" %}
+
+{% block content %}
+	<a href="/programas"> Atras </a>
+	<h1>Ver tabla </h1>
+	<ul>
+	{% for field in form %}
+	<li>
+	  <b>{{ field.label_tag }}</b> {{ field.value }}
+	</li>
+	{% endfor %}
+	</ul>
+
+{% endblock %}
