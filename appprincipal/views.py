@@ -13,18 +13,25 @@ from .forms import TipoForm
 
 # Create your views here.
 def autenticar(request):
+	template = loader.get_template('login.html')
 	if(request.user.is_authenticated):
 		return redirect('/')
 	if(request.method == 'POST'):
-		
 		username = request.POST.get('username', None)
 		password = request.POST.get('password', None)
 		user = authenticate(username=username, password=password)#Agregar login con correo
 		if(user != None):
-			login(request, user)	
-		return redirect('/')
-
-	return render(request, 'login.html', {})	
+			login(request, user)
+			return redirect('/')
+		else:
+			context = {
+				'datosIncorrectos' : True
+			}
+			return HttpResponse(template.render(context, request))
+	context = {
+		'datosIncorrectos' : False
+  }
+	return HttpResponse(template.render(context, request))
 
 def inicio(request):
 	return render(request, 'inicio.html', {})
@@ -63,7 +70,6 @@ def gestionarusuarios(request):
 		if(request.user.profile.tipo == 'admin'):
 			usuarios = User.objects.order_by('id')
 			template = loader.get_template('usuarios.html')
-			
 			context = {
 				'usuarios' : usuarios
 			}
@@ -133,15 +139,14 @@ def modificarUsuario(request, pk):
 def agregarprograma(request):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'decano'):
+			form = ProgramaForm(request.POST, request.FILES)
 			if request.method == 'POST':
-				form = ProgramaForm(request.POST, request.FILES)
-				director = request.POST.get('director', None)
-				user = get_object_or_404(User, id=director)
-				if form.is_valid() and user.profile.tipo == 'director':
+				if form.is_valid():
 					programa = form.save()
 					programa.save()
 					return HttpResponseRedirect('/programas')
-			form = ProgramaForm()
+			else:
+				form = ProgramaForm()
 			template = loader.get_template('agregarPrograma.html')
 			context = {
 				'form' : form
@@ -183,13 +188,15 @@ def editarPrograma(request, codigo): #Falta revisar html
 				#Actualiza
 				#programa = Programa.objects.get(codigo=codigo)
 				form = ProgramaForm(request.POST, instance=programa)
+				form.fields['codigo'].widget = forms.HiddenInput()
 				if form.is_valid():
 					form.save()
 					return HttpResponseRedirect('/programas')
 				else:
 					template = loader.get_template('editarPrograma.html')
 					context = {
-					'form' : form
+					'form' : form,
+					'pr' : programa
 					}
 					return HttpResponse(template.render(context, request))
 			else:

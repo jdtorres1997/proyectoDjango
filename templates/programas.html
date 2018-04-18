@@ -5,24 +5,33 @@
 	<h1 style="color:red">
 		Gestion de programas
 	</h1>
-	<a href="/programas/new">Agregar Programa</a>
-	<ul>
+	<table border="1">
 		{% for pr in programas %}
 
-			<li>
-				{{ pr.nombre_programa }}  - {{ pr.codigo }} |
+			<tr>
+				<td>
+				{{ pr.nombre_programa }}  - {{ pr.codigo }}
+				</td>
+
+				<td>
 				<a href="/programas/ver/{{ pr.codigo }}"> 
-					<img src="../media/add.png" alt = "" width="35px">
-				 </a> |
+					<font color="red"><i class="small material-icons">add</i></font>
+				</a>
+				</td>
+
+				<td>
 				<a href="/programas/editar/{{ pr.codigo }}"> 
-					<img src="../media/edit.png"alt = "" width="40px"> 
-				</a> |
+					<font color="red"><i class="small material-icons">edit</i> </font>
+				</a>
+				</td>
+
+				<td>
 				<a href="/programas/eliminar/{{ pr.codigo }}"> 
-					<img src="../media/delete.png" alt = "" width="40px"> 
-				</a> |
-				
-			</li>
+					<font color="red"><i color="red" class="small material-icons">delete</i></font>
+				</a> 
+				</td>
+			</tr>
 		{% endfor %}
-	</ul>
+	</table>
 
 {% endblock %}

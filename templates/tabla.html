@@ -3,12 +3,13 @@
 {% block content %}
 	<a href="/programas"> Atras </a>
 	<h1>Ver tabla </h1>
-	<ul>
-	{% for field in form %}
-	<li>
-	  <b>{{ field.label_tag }}</b> {{ field.value }}
-	</li>
-	{% endfor %}
-	</ul>
+	<table border="1">
+		{% for field in form %}
+			<tr>
+			  <td>{{ field.label_tag }}</td>
+			  <td>{{ field.value }} </td>
+			</tr>
+		{% endfor %}
+	</table>
 
 {% endblock %}
