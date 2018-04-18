@@ -50,3 +50,6 @@ Para migrar a postgresql se debe instalar el paquete psycopg2 y cambiar configur
 
 Se debe crear el super admin y darle privilegios desde pgadmin asi:
 update appprincipal_profile set tipo = 'admin' where id='1'
+
+INSTALAR
+pip install django-crispy-forms

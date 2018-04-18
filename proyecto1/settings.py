@@ -21,6 +21,9 @@ LOGOUT_URL = '/logout' #opcional
 LOGIN_REDIRECT_URL = 'marcador_bookmark_list' #opcional
 
 
+#prueba de formularios
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
@@ -43,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
 
 ]
 

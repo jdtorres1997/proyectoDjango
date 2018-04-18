@@ -11,17 +11,25 @@ from .forms import CursoForm
 
 # Create your views here.
 def autenticar(request):
-	
+	template = loader.get_template('login.html')
 	if(request.method == 'POST'):
-		
 		username = request.POST.get('username', None)
 		password = request.POST.get('password', None)
 		user = authenticate(username=username, password=password)#Agregar login con correo
 		if(user != None):
-			login(request, user)	
+			login(request, user)
+			return redirect('/')
+		else:
+			context = {
+				'datosIncorrectos' : True
+			}
+			return HttpResponse(template.render(context, request))
+	context = {
+		'datosIncorrectos' : False
+	}
+	if(request.user.is_authenticated):
 		return redirect('/')
-
-	return render(request, 'login.html', {})	
+	return HttpResponse(template.render(context, request))
 
 def inicio(request):
 	return render(request, 'inicio.html', {})
@@ -55,7 +63,6 @@ def gestionarusuarios(request):
 		if(request.user.profile.tipo == 'admin'):
 			usuarios = User.objects.order_by('id')
 			template = loader.get_template('usuarios.html')
-			
 			context = {
 				'usuarios' : usuarios
 			}
