@@ -110,12 +110,16 @@ def modificarUsuario(request, pk):
 	else:
 		return redirect('/')
 
+
+#-------------Crud programas------------------
 def agregarprograma(request):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'decano'):
 			if request.method == 'POST':
 				form = ProgramaForm(request.POST, request.FILES)
-				if form.is_valid():
+				director = request.POST.get('director', None)
+				user = get_object_or_404(User, id=director)
+				if form.is_valid() and user.profile.tipo == 'director':
 					programa = form.save()
 					programa.save()
 					return HttpResponseRedirect('/programas')
@@ -130,7 +134,7 @@ def agregarprograma(request):
 	else:
 		return redirect('/login')
 
-def gestionarprogramas(request):
+def gestionarprogramas(request): #Falta revisar html
 
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'decano'):
@@ -140,40 +144,40 @@ def gestionarprogramas(request):
 				'programas': programas
 			}
 			return HttpResponse(template.render(context, request))
+		elif(request.user.profile.tipo == 'director'):
+			programa = Programa.objects.get(director=request.user.pk)
+			template = loader.get_template('programas.html') #Modificar template para gestion del director
+			context = { #Diccionario que se le pasa al HTML
+				'programa': programa
+			}
+			return HttpResponse(template.render(context, request))
 		else:
 			return redirect('/') # sin permisos
 	else:
 		return redirect('/login')
 
-def editarPrograma(request, codigo):
+def editarPrograma(request, codigo): #Falta revisar html
 
 	if(request.user.is_authenticated):
-		if(request.user.profile.tipo == 'decano'):
+		programa = Programa.objects.get(codigo=codigo)
+		if((request.user.profile.tipo == 'decano') or (request.user.id == programa.director_id)):
 			if request.method == 'POST':
 				#Actualiza
-				programa = Programa.objects.get(codigo=codigo);
+				#programa = Programa.objects.get(codigo=codigo)
 				form = ProgramaForm(request.POST, instance=programa)
 				if form.is_valid():
 					form.save()
 					return HttpResponseRedirect('/programas')
 				else:
-					#form = ProgramaForm()
 					template = loader.get_template('editarPrograma.html')
 					context = {
 					'form' : form
 					}
 					return HttpResponse(template.render(context, request))
 			else:
-				#Mostrar en editar/<pk>
-				programa =  Programa.objects.get(codigo=codigo)
+				#programa =  Programa.objects.get(codigo=codigo)
 				form = ProgramaForm(instance=programa)
-				#form.fields["codigo"].initial= programa.codigo
-				#form.fields['codigo'].widget.attrs['readonly'] = True # text input
 				form.fields['codigo'].widget = forms.HiddenInput()
-				#form.fields["nombre_programa"].initial= programa.nombre_programa
-				#form.fields["escuela"].initial= programa.escuela
-				#form.fields["numero_semestres"].initial= programa.numero_semestres
-				#form.fields["numero_creditos_graduacion"].initial= programa.numero_creditos_graduacion
 				template = loader.get_template('editarPrograma.html')
 				context = { #Diccionario que se le pasa al HTML
 				'form': form,
@@ -209,9 +213,10 @@ def eliminarPrograma(request, codigo):
 
 def verPrograma(request,codigo):
 	if(request.user.is_authenticated):
-		if(request.user.profile.tipo == 'decano'):
+		programa = Programa.objects.get(codigo=codigo)
+		if(request.user.profile.tipo == 'decano' or request.user.id == programa.director_id):
 			#Tabla a HTML
-			programa = Programa.objects.get(codigo=codigo)
+			#programa = Programa.objects.get(codigo=codigo)
 			form = ProgramaForm(instance=programa)
 			template = loader.get_template('tabla.html')
 			context = { #Diccionario que se le pasa al HTML

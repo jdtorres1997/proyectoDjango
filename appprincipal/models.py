@@ -5,7 +5,13 @@ from django.dispatch import receiver
 
 class Profile(models.Model):
 	user=models.OneToOneField(User, on_delete=models.CASCADE)
-	tipo = models.TextField(max_length=500, blank=True)
+	T_OPTION = (
+        ('admin', 'Administrador'),
+        ('decano', 'Decano'),
+        ('director', 'Director'),
+        ('profesor', 'Profesor'),
+    )
+	tipo = models.TextField(max_length=500, blank=True, choices=T_OPTION)
 
 	@receiver(post_save, sender=User)
 	def create_user_profile(sender, instance, created, **kwargs):
@@ -22,9 +28,10 @@ class Programa(models.Model):
 	escuela = models.CharField(max_length=255)
 	numero_semestres =  models.IntegerField()
 	numero_creditos_graduacion = models.IntegerField()
+	director = models.ForeignKey(User, on_delete=models.CASCADE, default=False)
 
 	def __str__(self): 
-		return self.nombre
+		return self.nombre_programa
 
 	class Meta:
 		ordering = ('codigo',)
@@ -35,8 +42,24 @@ class Curso(models.Model):
 	creditos=models.IntegerField()
 	horas_clase_magistral=models.IntegerField()
 	horas_estudio_independiente=models.IntegerField()
-	tipo_curso=models.CharField(max_length=20)
-	validable=models.CharField(max_length=2) #Solo se acepta si o no
-	habilitable=models.CharField(max_length=2) #Solo se acepta si o no
-	programa=models.CharField(max_length=20) #debe cambiarse por llave foranea
+	T_OPTION = (
+        ('Asignatura basica', 'Asignatura basica'),
+        ('Asignatura profesional', 'Asignatura profesional'),
+        ('Asignatura electiva complementaria', 'Asignatura electiva complementaria'),
+        ('Asignatura electiva profesional', 'Asignatura electiva profesional'),
+    )
+	tipo_curso=models.CharField(max_length=20, choices=T_OPTION)
+	V_OPTION = (
+        ('si', 'Si'),
+        ('no', 'No'),
+    )
+	validable=models.CharField(max_length=2, choices=V_OPTION) #Solo se acepta si o no
+	habilitable=models.CharField(max_length=2, choices=V_OPTION) #Solo se acepta si o no
+	programa=models.ForeignKey(Programa, on_delete=models.CASCADE)
 	semestre=models.IntegerField()
+
+	def __str__(self): 
+		return self.nombre
+
+	class Meta:
+		ordering = ('codigo',)
