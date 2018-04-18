@@ -8,6 +8,8 @@ from .models import Programa
 from django import forms
 from .models import Curso
 from .forms import CursoForm
+from .forms import UserForm
+from .forms import TipoForm
 
 # Create your views here.
 def autenticar(request):
@@ -29,23 +31,28 @@ def inicio(request):
 
 #------------------Crud usuarios--------------
 def agregarusuario(request):
-
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'admin'):
 			if(request.method == 'POST'):
-
+				form = UserForm(request.POST, request.FILES)
 				username = request.POST.get('username', None)
-				name = request.POST.get('name', None)
+				name = request.POST.get('first_name', None)
 				password = request.POST.get('password', None)
 				email = request.POST.get('email', None)
 				tipo = request.POST.get('tipo', None)
-				user = User.delete
-				user = User.objects.create_user(username=username, password=password, email=email, last_name=name)
-				user.profile.tipo = tipo #Añadido
-				user.save() #Añadido
-				return redirect('/')
-
-			return render(request, 'agregarUsuario.html', {})
+				if form.is_valid():
+					user = User.objects.create_user(username=username, password=password, email=email, first_name=name)
+					user.profile.tipo = tipo
+					user.save()
+					return HttpResponseRedirect('/usuarios')
+			form = UserForm()
+			formT = TipoForm()
+			template = loader.get_template('agregarUsuario2.html')
+			context = {
+				'form' : form,
+				'tipo' : formT, 
+			}
+			return HttpResponse(template.render(context, request))
 		else:
 			return redirect('/')
 	else:
@@ -78,32 +85,42 @@ def detalleUsuario(request, pk):
 def modificarUsuario(request, pk):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'admin'):
+			usuario = get_object_or_404(User, pk=pk)
 			if(request.method == 'POST'):
-				
+				form = UserForm(request.POST, instance=usuario)
+				formT = TipoForm(request.POST, instance=usuario)
 				username = request.POST.get('username', None)
-				name = request.POST.get('name', None)
+				name = request.POST.get('first_name', None)
 				password = request.POST.get('password', None)
 				email = request.POST.get('email', None)
 				tipo = request.POST.get('tipo', None)
-				usuario = get_object_or_404(User, pk=pk)
-				if(username != ""):
-					usuario.username = username
-				if(password != ""):
-					usuario.password = password
-				if(tipo != ""):
-					usuario.profile.tipo = tipo
-				if(name != ""):
-					usuario.last_name = name
-				if(email != ""):
-					usuario.email = email
-				usuario.save()
-				return redirect('/usuarios')
-
+				if form.is_valid() and formT.is_valid():
+					if(username != ""):
+						usuario.username = username
+					if(tipo != ""):
+						usuario.profile.tipo = tipo
+					if(name != ""):
+						usuario.last_name = name
+					if(email != ""):
+						usuario.email = email
+					usuario.set_password(password)
+					usuario.save()
+					return HttpResponseRedirect('/usuarios')
+				else:
+					template = loader.get_template('modificarUsuario.html')
+					context = {
+						'form' : form,
+						'tipo' : formT,
+					}
+					return HttpResponse(template.render(context, request))
 			else:
-				usuario = get_object_or_404(User, pk=pk) #Saca un objeto que su pk sea igual a la ingresada
-				template = loader.get_template('modificarUsuario.html') 
-				context = {
-					'usuario': usuario
+				
+				form = UserForm(instance=usuario)
+				formT = TipoForm(instance=usuario.profile)
+				template = loader.get_template('modificarUsuario.html')
+				context = { #Diccionario que se le pasa al HTML
+					'form': form,
+					'tipo' : formT,
 				}
 				return HttpResponse(template.render(context, request))
 		else:
