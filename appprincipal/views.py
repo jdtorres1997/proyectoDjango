@@ -11,7 +11,8 @@ from .forms import CursoForm
 
 # Create your views here.
 def autenticar(request):
-	
+	if(request.user.is_authenticated):
+		return redirect('/')
 	if(request.method == 'POST'):
 		
 		username = request.POST.get('username', None)
