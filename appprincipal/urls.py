@@ -1,8 +1,13 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
+from django.conf.urls import url
+from django.conf.urls import include
+from material.frontend import urls as frontend_urls
+
 
 urlpatterns = [
+	url(r'', include(frontend_urls)),
 	path('login', views.autenticar, name='Autentication'),
 	path('', views.inicio, name='inicio'),
 	path('logout', auth_views.logout, {'next_page': '/'}, name='logout'),	
