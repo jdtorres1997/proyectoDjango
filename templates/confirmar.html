@@ -1,10 +1,11 @@
 {% extends "index.html" %}
+{% load material_form %} 
 
 {% block content %}
-	<h1> ¿Esta seguro que desea borrar  {{ pr.nombre_programa }}  - {{ pr.codigo }} ? </h1>
+	<h1> ¿Desea borrar  {{ pr.nombre_programa }}  - {{ pr.codigo }} ? </h1>
 	<form method="POST" enctype="multipart/form-data">
 		{% csrf_token %}
-		<button name="opcion" type='submit' value="no">No</button>
-		<button name="opcion" type="submit" value="si">Si, borrar</button>
+		<button name="opcion" type='submit' value="no" class="btn">No</button>
+		<button name="opcion" type="submit" value="si" class="btn">Si</button>
 	</form>
 {% endblock %}

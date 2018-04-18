@@ -2,6 +2,11 @@
 <html >
 <head>
   {% load staticfiles %}
+  {% load material_form %} 
+  
+  {% include 'material/includes/material_css.html' %}
+  <script src="{% static 'material/js/jquery.js' %}"></script>
+  {% include 'material/includes/material_js.html' %}
   <meta charset="UTF-8">
   <title>Only CSS3 Dropdown Menu</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
@@ -58,9 +63,11 @@
   </div> 
 
   <div class="derecha">
-    {% block login_content %} {% endblock %}
-    {% block content %} {% endblock %}
-   </div>
+    <div class="contenido_derecha">
+      {% block login_content %} {% endblock %}
+      {% block content %} {% endblock %}
+    </div>
+  </div>
 </div>
 
 </div>

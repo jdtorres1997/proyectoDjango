@@ -120,13 +120,14 @@ def modificarUsuario(request, pk):
 def agregarprograma(request):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'decano'):
+			form = ProgramaForm(request.POST, request.FILES)
 			if request.method == 'POST':
-				form = ProgramaForm(request.POST, request.FILES)
 				if form.is_valid():
 					programa = form.save()
 					programa.save()
 					return HttpResponseRedirect('/programas')
-			form = ProgramaForm()
+			else:
+				form = ProgramaForm()
 			template = loader.get_template('agregarPrograma.html')
 			context = {
 				'form' : form
@@ -160,6 +161,7 @@ def editarPrograma(request, codigo):
 				#Actualiza
 				programa = Programa.objects.get(codigo=codigo);
 				form = ProgramaForm(request.POST, instance=programa)
+				form.fields['codigo'].widget = forms.HiddenInput()
 				if form.is_valid():
 					form.save()
 					return HttpResponseRedirect('/programas')
@@ -167,7 +169,8 @@ def editarPrograma(request, codigo):
 					#form = ProgramaForm()
 					template = loader.get_template('editarPrograma.html')
 					context = {
-					'form' : form
+					'form' : form,
+					'pr' : programa
 					}
 					return HttpResponse(template.render(context, request))
 			else:

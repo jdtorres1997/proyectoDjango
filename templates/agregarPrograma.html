@@ -1,12 +1,12 @@
 {% extends "index.html" %}
-{% load crispy_forms_tags %}
+{% load material_form %} 
 
 {% block content %}
 <a href="/programas"> Atras </a>
 	<h1> Agregar Programa </h1>
 	<form method="POST" enctype="multipart/form-data">
 		{% csrf_token %}
-		{{ form|crispy }}
-		<button type='submit'>Guardar</button>
+		{% form form=form %}{% endform %}
+		<button type="submit" name="_submit" class="btn">Guardar</button>
 	</form>
 {% endblock %}

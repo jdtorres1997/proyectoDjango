@@ -84,10 +84,15 @@ body {
 
 .derecha {
   margin-top: 15vh;
+
   width: 72vw;
   height: 100vh;
   background: #FCFCFC;
   float: right;
+}
+
+.contenido_derecha{
+  margin: 25px;
 }
 
 .title {

@@ -49,7 +49,7 @@ para acceder a ellas se crea una carpeta de archivos estaticos en el settings y 
 Para migrar a postgresql se debe instalar el paquete psycopg2 y cambiar configuraciones en el settings.py (Ya está cambiado)
 
 Se debe crear el super admin y darle privilegios desde pgadmin asi:
-update appprincipal_profile set tipo = 'admin' where id='1'
 
-INSTALAR
-pip install django-crispy-forms
+INSTALAR PARA FRONT END
+pip install django-material 
+http://forms.viewflow.io/
