@@ -8,10 +8,14 @@ from .models import Programa
 from django import forms
 from .models import Curso
 from .forms import CursoForm
+from .forms import UserForm
+from .forms import TipoForm
 
 # Create your views here.
 def autenticar(request):
 	template = loader.get_template('login.html')
+	if(request.user.is_authenticated):
+		return redirect('/')
 	if(request.method == 'POST'):
 		username = request.POST.get('username', None)
 		password = request.POST.get('password', None)
@@ -26,9 +30,7 @@ def autenticar(request):
 			return HttpResponse(template.render(context, request))
 	context = {
 		'datosIncorrectos' : False
-	}
-	if(request.user.is_authenticated):
-		return redirect('/')
+  }
 	return HttpResponse(template.render(context, request))
 
 def inicio(request):
@@ -36,23 +38,28 @@ def inicio(request):
 
 #------------------Crud usuarios--------------
 def agregarusuario(request):
-
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'admin'):
 			if(request.method == 'POST'):
-
+				form = UserForm(request.POST, request.FILES)
 				username = request.POST.get('username', None)
-				name = request.POST.get('name', None)
+				name = request.POST.get('first_name', None)
 				password = request.POST.get('password', None)
 				email = request.POST.get('email', None)
 				tipo = request.POST.get('tipo', None)
-				user = User.delete
-				user = User.objects.create_user(username=username, password=password, email=email, last_name=name)
-				user.profile.tipo = tipo #Añadido
-				user.save() #Añadido
-				return redirect('/')
-
-			return render(request, 'agregarUsuario.html', {})
+				if form.is_valid():
+					user = User.objects.create_user(username=username, password=password, email=email, first_name=name)
+					user.profile.tipo = tipo
+					user.save()
+					return HttpResponseRedirect('/usuarios')
+			form = UserForm()
+			formT = TipoForm()
+			template = loader.get_template('agregarUsuario2.html')
+			context = {
+				'form' : form,
+				'tipo' : formT, 
+			}
+			return HttpResponse(template.render(context, request))
 		else:
 			return redirect('/')
 	else:
@@ -75,7 +82,7 @@ def gestionarusuarios(request):
 def detalleUsuario(request, pk):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'admin'):
-			return redirect('/') #Cambiar-----------------------
+			return redirect('/usuarios') #Cambiar-----------------------
 		else:
 			return redirect('/')
 	else:
@@ -84,32 +91,42 @@ def detalleUsuario(request, pk):
 def modificarUsuario(request, pk):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'admin'):
+			usuario = get_object_or_404(User, pk=pk)
 			if(request.method == 'POST'):
-				
+				form = UserForm(request.POST, instance=usuario)
+				formT = TipoForm(request.POST, instance=usuario)
 				username = request.POST.get('username', None)
-				name = request.POST.get('name', None)
+				name = request.POST.get('first_name', None)
 				password = request.POST.get('password', None)
 				email = request.POST.get('email', None)
 				tipo = request.POST.get('tipo', None)
-				usuario = get_object_or_404(User, pk=pk)
-				if(username != ""):
-					usuario.username = username
-				if(password != ""):
-					usuario.password = password
-				if(tipo != ""):
-					usuario.profile.tipo = tipo
-				if(name != ""):
-					usuario.last_name = name
-				if(email != ""):
-					usuario.email = email
-				usuario.save()
-				return redirect('/usuarios')
-
+				if form.is_valid() and formT.is_valid():
+					if(username != ""):
+						usuario.username = username
+					if(tipo != ""):
+						usuario.profile.tipo = tipo
+					if(name != ""):
+						usuario.last_name = name
+					if(email != ""):
+						usuario.email = email
+					usuario.set_password(password)
+					usuario.save()
+					return HttpResponseRedirect('/usuarios')
+				else:
+					template = loader.get_template('modificarUsuario.html')
+					context = {
+						'form' : form,
+						'tipo' : formT,
+					}
+					return HttpResponse(template.render(context, request))
 			else:
-				usuario = get_object_or_404(User, pk=pk) #Saca un objeto que su pk sea igual a la ingresada
-				template = loader.get_template('modificarUsuario.html') 
-				context = {
-					'usuario': usuario
+				
+				form = UserForm(instance=usuario)
+				formT = TipoForm(instance=usuario.profile)
+				template = loader.get_template('modificarUsuario.html')
+				context = { #Diccionario que se le pasa al HTML
+					'form': form,
+					'tipo' : formT,
 				}
 				return HttpResponse(template.render(context, request))
 		else:
@@ -117,6 +134,8 @@ def modificarUsuario(request, pk):
 	else:
 		return redirect('/')
 
+
+#-------------Crud programas------------------
 def agregarprograma(request):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'decano'):
@@ -138,7 +157,7 @@ def agregarprograma(request):
 	else:
 		return redirect('/login')
 
-def gestionarprogramas(request):
+def gestionarprogramas(request): #Falta revisar html
 
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'decano'):
@@ -148,25 +167,32 @@ def gestionarprogramas(request):
 				'programas': programas
 			}
 			return HttpResponse(template.render(context, request))
+		elif(request.user.profile.tipo == 'director'):
+			programa = Programa.objects.get(director_id=request.user.pk)
+			template = loader.get_template('programas.html') #Modificar template para gestion del director
+			context = { #Diccionario que se le pasa al HTML
+				'programa': programa
+			}
+			return HttpResponse(template.render(context, request))
 		else:
 			return redirect('/') # sin permisos
 	else:
 		return redirect('/login')
 
-def editarPrograma(request, codigo):
+def editarPrograma(request, codigo): #Falta revisar html
 
 	if(request.user.is_authenticated):
-		if(request.user.profile.tipo == 'decano'):
+		programa = Programa.objects.get(codigo=codigo)
+		if((request.user.profile.tipo == 'decano') or (request.user.id == programa.director_id)):
 			if request.method == 'POST':
 				#Actualiza
-				programa = Programa.objects.get(codigo=codigo);
+				#programa = Programa.objects.get(codigo=codigo)
 				form = ProgramaForm(request.POST, instance=programa)
 				form.fields['codigo'].widget = forms.HiddenInput()
 				if form.is_valid():
 					form.save()
 					return HttpResponseRedirect('/programas')
 				else:
-					#form = ProgramaForm()
 					template = loader.get_template('editarPrograma.html')
 					context = {
 					'form' : form,
@@ -174,16 +200,9 @@ def editarPrograma(request, codigo):
 					}
 					return HttpResponse(template.render(context, request))
 			else:
-				#Mostrar en editar/<pk>
-				programa =  Programa.objects.get(codigo=codigo)
+				#programa =  Programa.objects.get(codigo=codigo)
 				form = ProgramaForm(instance=programa)
-				#form.fields["codigo"].initial= programa.codigo
-				#form.fields['codigo'].widget.attrs['readonly'] = True # text input
 				form.fields['codigo'].widget = forms.HiddenInput()
-				#form.fields["nombre_programa"].initial= programa.nombre_programa
-				#form.fields["escuela"].initial= programa.escuela
-				#form.fields["numero_semestres"].initial= programa.numero_semestres
-				#form.fields["numero_creditos_graduacion"].initial= programa.numero_creditos_graduacion
 				template = loader.get_template('editarPrograma.html')
 				context = { #Diccionario que se le pasa al HTML
 				'form': form,
@@ -197,16 +216,17 @@ def editarPrograma(request, codigo):
 
 def eliminarPrograma(request, codigo):
 	if(request.user.is_authenticated):
-		if(request.user.profile.tipo == 'decano'):
+		programa = Programa.objects.get(codigo=codigo)
+		if(request.user.profile.tipo == 'decano' or request.user.id == programa.director_id):
 			if request.method == 'POST':
 				respuesta = request.POST.get('opcion', None)
 				if(respuesta=="si"):
-					programa = Programa.objects.get(codigo=codigo);
+					#programa = Programa.objects.get(codigo=codigo);
 					programa.delete()
 				return redirect('/programas')
 			else:
 				#Mostrar en eliminar/<pk>
-				programa =  Programa.objects.get(codigo=codigo)
+				#programa =  Programa.objects.get(codigo=codigo)
 				template = loader.get_template('confirmar.html')
 				context = { #Diccionario que se le pasa al HTML
 				'pr' : programa
@@ -219,9 +239,10 @@ def eliminarPrograma(request, codigo):
 
 def verPrograma(request,codigo):
 	if(request.user.is_authenticated):
-		if(request.user.profile.tipo == 'decano'):
+		programa = Programa.objects.get(codigo=codigo)
+		if(request.user.profile.tipo == 'decano' or request.user.id == programa.director_id):
 			#Tabla a HTML
-			programa = Programa.objects.get(codigo=codigo)
+			#programa = Programa.objects.get(codigo=codigo)
 			form = ProgramaForm(instance=programa)
 			template = loader.get_template('tabla.html')
 			context = { #Diccionario que se le pasa al HTML
@@ -257,11 +278,19 @@ def eliminarUsuario(request, pk):
 def gestionarCursos(request):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'director'):
-			cursos = Curso.objects.order_by('codigo')
+			programa = Programa.objects.get(director_id=request.user.id)
+			cursos = Curso.objects.filter(programa_id=programa.codigo)
 			template = loader.get_template('cursos.html')
 			
 			context = {
 				'cursos' : cursos
+			}
+			return HttpResponse(template.render(context, request))
+		elif(request.user.profile.tipo == 'profesor'):
+			curso = Curso.objects.get(docente_id=request.user.pk)
+			template = loader.get_template('cursos.html') #Modificar template para gestion del director
+			context = { #Diccionario que se le pasa al HTML
+				'curso': curso
 			}
 			return HttpResponse(template.render(context, request))
 		else:
@@ -280,7 +309,6 @@ def agregarCurso(request):
 					return HttpResponseRedirect('/cursos')
 			
 			form = CursoForm()
-
 			template = loader.get_template('agregarCurso.html')
 	
 			context = {
@@ -294,15 +322,17 @@ def agregarCurso(request):
 
 def modificarCurso(request, codigo):
 	if(request.user.is_authenticated):
-		if(request.user.profile.tipo == 'director'):
+		curso = Curso.objects.get(codigo=codigo)
+		programa = Programa.objects.get(codigo=curso.programa_id)
+		if((request.user.profile.tipo == 'director' and request.user.id == programa.director_id) or request.user.id == curso.docente_id):
 			if(request.method == 'POST'):
-				curso = Curso.objects.get(codigo=codigo)
+				#curso = Curso.objects.get(codigo=codigo)
 				form = CursoForm(data = request.POST or None , instance=curso)
 				if form.is_valid():
 					form.save()
 					return HttpResponseRedirect('/cursos')
 			
-			curso = Curso.objects.get(codigo=codigo)
+			#curso = Curso.objects.get(codigo=codigo)
 			form = CursoForm(instance = curso)
 			form.fields['codigo'].widget = forms.HiddenInput()
 			template = loader.get_template('modificarCurso.html')
@@ -318,7 +348,9 @@ def modificarCurso(request, codigo):
 
 def eliminarCurso(request, codigo):
 	if(request.user.is_authenticated):
-		if(request.user.profile.tipo == 'director'):
+		curso = Curso.objects.get(codigo=codigo)
+		programa = Programa.objects.get(codigo=curso.programa_id)
+		if(request.user.profile.tipo == 'director' and request.user.id == programa.director_id):
 			if(request.method == 'POST'):
 				opcion = request.POST.get('opcion', None)
 				if(opcion == 'si'):
@@ -334,8 +366,10 @@ def eliminarCurso(request, codigo):
 
 def consultarCurso(request, codigo):
 	if(request.user.is_authenticated):
-		if(request.user.profile.tipo == 'director'):
-			return redirect('/') #Cambiar-----------------------
+		curso = Curso.objects.get(codigo=codigo)
+		programa = Programa.objects.get(codigo=curso.programa_id)
+		if((request.user.profile.tipo == 'director' and request.user.id == programa.director_id) or request.user.id == curso.docente_id):
+			return redirect('/cursos') #Cambiar-----------------------
 		else:
 			return redirect('/')
 	else:
