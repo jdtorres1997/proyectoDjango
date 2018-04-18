@@ -23,9 +23,9 @@ class Profile(models.Model):
 		instance.profile.save()
 
 class Programa(models.Model):
-	codigo = models.IntegerField(primary_key=True)
-	nombre_programa = models.CharField(max_length=255)
-	escuela = models.CharField(max_length=255)
+	codigo = models.CharField(max_length=10, primary_key=True)
+	nombre_programa = models.CharField(max_length=50)
+	escuela = models.CharField(max_length=40)
 	numero_semestres =  models.IntegerField()
 	numero_creditos_graduacion = models.IntegerField()
 	director = models.ForeignKey(User, on_delete=models.CASCADE, default=False)
@@ -48,7 +48,7 @@ class Curso(models.Model):
         ('Asignatura electiva complementaria', 'Asignatura electiva complementaria'),
         ('Asignatura electiva profesional', 'Asignatura electiva profesional'),
     )
-	tipo_curso=models.CharField(max_length=20, choices=T_OPTION)
+	tipo_curso=models.CharField(max_length=50, choices=T_OPTION)
 	V_OPTION = (
         ('si', 'Si'),
         ('no', 'No'),
@@ -57,6 +57,7 @@ class Curso(models.Model):
 	habilitable=models.CharField(max_length=2, choices=V_OPTION) #Solo se acepta si o no
 	programa=models.ForeignKey(Programa, on_delete=models.CASCADE)
 	semestre=models.IntegerField()
+	docente=models.ForeignKey(User, on_delete=models.CASCADE, default=False)
 
 	def __str__(self): 
 		return self.nombre

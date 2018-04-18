@@ -68,7 +68,7 @@ def gestionarusuarios(request):
 def detalleUsuario(request, pk):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'admin'):
-			return redirect('/') #Cambiar-----------------------
+			return redirect('/usuarios') #Cambiar-----------------------
 		else:
 			return redirect('/')
 	else:
@@ -145,7 +145,7 @@ def gestionarprogramas(request): #Falta revisar html
 			}
 			return HttpResponse(template.render(context, request))
 		elif(request.user.profile.tipo == 'director'):
-			programa = Programa.objects.get(director=request.user.pk)
+			programa = Programa.objects.get(director_id=request.user.pk)
 			template = loader.get_template('programas.html') #Modificar template para gestion del director
 			context = { #Diccionario que se le pasa al HTML
 				'programa': programa
@@ -191,16 +191,17 @@ def editarPrograma(request, codigo): #Falta revisar html
 
 def eliminarPrograma(request, codigo):
 	if(request.user.is_authenticated):
-		if(request.user.profile.tipo == 'decano'):
+		programa = Programa.objects.get(codigo=codigo)
+		if(request.user.profile.tipo == 'decano' or request.user.id == programa.director_id):
 			if request.method == 'POST':
 				respuesta = request.POST.get('opcion', None)
 				if(respuesta=="si"):
-					programa = Programa.objects.get(codigo=codigo);
+					#programa = Programa.objects.get(codigo=codigo);
 					programa.delete()
 				return redirect('/programas')
 			else:
 				#Mostrar en eliminar/<pk>
-				programa =  Programa.objects.get(codigo=codigo)
+				#programa =  Programa.objects.get(codigo=codigo)
 				template = loader.get_template('confirmar.html')
 				context = { #Diccionario que se le pasa al HTML
 				'pr' : programa
@@ -252,11 +253,19 @@ def eliminarUsuario(request, pk):
 def gestionarCursos(request):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'director'):
-			cursos = Curso.objects.order_by('codigo')
+			programa = Programa.objects.get(director_id=request.user.id)
+			cursos = Curso.objects.filter(programa_id=programa.codigo)
 			template = loader.get_template('cursos.html')
 			
 			context = {
 				'cursos' : cursos
+			}
+			return HttpResponse(template.render(context, request))
+		elif(request.user.profile.tipo == 'profesor'):
+			curso = Curso.objects.get(docente_id=request.user.pk)
+			template = loader.get_template('cursos.html') #Modificar template para gestion del director
+			context = { #Diccionario que se le pasa al HTML
+				'curso': curso
 			}
 			return HttpResponse(template.render(context, request))
 		else:
@@ -275,7 +284,6 @@ def agregarCurso(request):
 					return HttpResponseRedirect('/cursos')
 			
 			form = CursoForm()
-
 			template = loader.get_template('agregarCurso.html')
 	
 			context = {
@@ -289,15 +297,17 @@ def agregarCurso(request):
 
 def modificarCurso(request, codigo):
 	if(request.user.is_authenticated):
-		if(request.user.profile.tipo == 'director'):
+		curso = Curso.objects.get(codigo=codigo)
+		programa = Programa.objects.get(codigo=curso.programa_id)
+		if((request.user.profile.tipo == 'director' and request.user.id == programa.director_id) or request.user.id == curso.docente_id):
 			if(request.method == 'POST'):
-				curso = Curso.objects.get(codigo=codigo)
+				#curso = Curso.objects.get(codigo=codigo)
 				form = CursoForm(data = request.POST or None , instance=curso)
 				if form.is_valid():
 					form.save()
 					return HttpResponseRedirect('/cursos')
 			
-			curso = Curso.objects.get(codigo=codigo)
+			#curso = Curso.objects.get(codigo=codigo)
 			form = CursoForm(instance = curso)
 			form.fields['codigo'].widget = forms.HiddenInput()
 			template = loader.get_template('modificarCurso.html')
@@ -313,7 +323,9 @@ def modificarCurso(request, codigo):
 
 def eliminarCurso(request, codigo):
 	if(request.user.is_authenticated):
-		if(request.user.profile.tipo == 'director'):
+		curso = Curso.objects.get(codigo=codigo)
+		programa = Programa.objects.get(codigo=curso.programa_id)
+		if(request.user.profile.tipo == 'director' and request.user.id == programa.director_id):
 			if(request.method == 'POST'):
 				opcion = request.POST.get('opcion', None)
 				if(opcion == 'si'):
@@ -329,8 +341,10 @@ def eliminarCurso(request, codigo):
 
 def consultarCurso(request, codigo):
 	if(request.user.is_authenticated):
-		if(request.user.profile.tipo == 'director'):
-			return redirect('/') #Cambiar-----------------------
+		curso = Curso.objects.get(codigo=codigo)
+		programa = Programa.objects.get(codigo=curso.programa_id)
+		if((request.user.profile.tipo == 'director' and request.user.id == programa.director_id) or request.user.id == curso.docente_id):
+			return redirect('/cursos') #Cambiar-----------------------
 		else:
 			return redirect('/')
 	else:

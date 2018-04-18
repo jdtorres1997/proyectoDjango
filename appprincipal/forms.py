@@ -1,5 +1,5 @@
 
-#aqui se almacenan los formularios, credos a partir de los modelos
+#aqui se almacenan los formularios, creados a partir de los modelos
 
 from django import forms
 from .models import Programa
