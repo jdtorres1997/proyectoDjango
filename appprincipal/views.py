@@ -111,20 +111,24 @@ def modificarUsuario(request, pk):
 		return redirect('/')
 
 def agregarprograma(request):
-
-	if request.method == 'POST':
-		form = ProgramaForm(request.POST, request.FILES)
-		if form.is_valid():
-			programa = form.save()
-			programa.save()
-			return HttpResponseRedirect('/programas')
-	form = ProgramaForm()
-	template = loader.get_template('agregarPrograma.html')
-	context = {
-		'form' : form
-	}
-	return HttpResponse(template.render(context, request))
-
+	if(request.user.is_authenticated):
+		if(request.user.profile.tipo == 'decano'):
+			if request.method == 'POST':
+				form = ProgramaForm(request.POST, request.FILES)
+				if form.is_valid():
+					programa = form.save()
+					programa.save()
+					return HttpResponseRedirect('/programas')
+			form = ProgramaForm()
+			template = loader.get_template('agregarPrograma.html')
+			context = {
+				'form' : form
+			}
+			return HttpResponse(template.render(context, request))
+		else:
+			return redirect('/') # sin permisos
+	else:
+		return redirect('/login')
 
 def gestionarprogramas(request):
 
@@ -137,7 +141,7 @@ def gestionarprogramas(request):
 			}
 			return HttpResponse(template.render(context, request))
 		else:
-			return redirect('/nopermisos')
+			return redirect('/') # sin permisos
 	else:
 		return redirect('/login')
 
@@ -177,7 +181,7 @@ def editarPrograma(request, codigo):
 				}
 				return HttpResponse(template.render(context, request))
 		else:
-			return redirect('/nopermisos')
+			return redirect('/') # sin permisos
 	else:
 		return redirect('/login')
 
@@ -199,7 +203,7 @@ def eliminarPrograma(request, codigo):
 				}
 				return HttpResponse(template.render(context, request))
 		else:
-			return redirect('/nopermisos')
+			return redirect('/') # sin permisos
 	else:
 		return redirect('/login')
 
@@ -215,7 +219,7 @@ def verPrograma(request,codigo):
 			}
 			return HttpResponse(template.render(context, request))
 		else:
-			return redirect('/nopermisos')
+			return redirect('/') #sin permisos
 	else:
 		return redirect('/login')
 

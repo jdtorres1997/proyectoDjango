@@ -17,11 +17,11 @@ class Profile(models.Model):
 		instance.profile.save()
 
 class Programa(models.Model):
-	codigo = models.CharField(max_length=255, primary_key=True)
+	codigo = models.IntegerField(primary_key=True)
 	nombre_programa = models.CharField(max_length=255)
 	escuela = models.CharField(max_length=255)
-	numero_semestres =  models.CharField(max_length=255)
-	numero_creditos_graduacion = models.CharField(max_length=255)
+	numero_semestres =  models.IntegerField()
+	numero_creditos_graduacion = models.IntegerField()
 
 	def __str__(self): 
 		return self.nombre
