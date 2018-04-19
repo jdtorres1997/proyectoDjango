@@ -218,11 +218,18 @@ def gestionarprogramas(request):
 			programas = Programa.objects.order_by('codigo')
 			template = loader.get_template('programas.html')
 			context = { #Diccionario que se le pasa al HTML
-				'programas': programas
+				'programas': programas,
+				'puedoeliminar' : request.user.profile.tipo == 'decano',
 			}
 			return HttpResponse(template.render(context, request))
 		elif(request.user.profile.tipo == 'director'):
-			programas = Programa.objects.filter(director_id=request.user.pk)#-------------Buscame----------------
+			programas = Programa.objects.filter(director_id=request.user.id)
+			if (programas.count() == 0):
+				template = loader.get_template('error.html') #---------Buscame-------------
+				context = { #Diccionario que se le pasa al HTML
+					'error': "No tiene programa academico asignado",
+				}
+				return HttpResponse(template.render(context, request))
 			template = loader.get_template('programas.html') #Modificar template para gestion del director
 			context = { #Diccionario que se le pasa al HTML
 				'programas': programas
@@ -276,7 +283,7 @@ def editarPrograma(request, codigo): #Falta revisar html
 def eliminarPrograma(request, codigo):
 	if(request.user.is_authenticated):
 		programa = Programa.objects.get(codigo=codigo)
-		if(request.user.profile.tipo == 'decano' or request.user.id == programa.director_id):
+		if(request.user.profile.tipo == 'decano'):
 			if request.method == 'POST':
 				respuesta = request.POST.get('opcion', None)
 				if(respuesta=="si"):
@@ -287,8 +294,9 @@ def eliminarPrograma(request, codigo):
 				#Mostrar en eliminar/<pk>
 				#programa =  Programa.objects.get(codigo=codigo)
 				template = loader.get_template('confirmar.html')
+				texto = "¿Seguro que desea borrar " + programa.nombre_programa + "?"
 				context = { #Diccionario que se le pasa al HTML
-				'pr' : programa
+				'texto' : texto
 				}
 				return HttpResponse(template.render(context, request))
 		else:
@@ -304,9 +312,10 @@ def verPrograma(request,codigo):
 			#programa = Programa.objects.get(codigo=codigo)
 			form = ProgramaForm(instance=programa)
 			form.fields['director'].widget = forms.HiddenInput()
-			template = loader.get_template('tabla.html')
+			template = loader.get_template('verprogramas.html')
 			context = { #Diccionario que se le pasa al HTML
 				'form' : form,
+				'puedoeliminar' : request.user.profile.tipo == 'decano',
 				'programa' : programa,
 			}
 			return HttpResponse(template.render(context, request))
@@ -318,15 +327,19 @@ def verPrograma(request,codigo):
 def eliminarUsuario(request, pk):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'admin'):
+			user = User.objects.get(pk=pk)
 			if(request.method == 'POST'):
 				opcion = request.POST.get('opcion', None)
 				if(opcion == 'si'):
-					user = User.objects.get(pk=pk)
 					user.delete()
-				
 				return redirect('/usuarios')
 			else:
-				return redirect('/usuarios')#Mostrar el template para eliminar
+				template = loader.get_template('confirmar.html')
+				texto = "¿Seguro que desea borrar " +  user.first_name + " ?:"
+				context = { #Diccionario que se le pasa al HTML
+				'texto' : texto
+				}
+				return HttpResponse(template.render(context, request))
 		else:
 			return redirect('/')
 	else:
@@ -342,7 +355,7 @@ def gestionarCursos(request):
 			try:
 				programa = Programa.objects.get(director_id=request.user.id)
 			except Programa.DoesNotExist:
-				template = loader.get_template('index.html') #---------Buscame-------------
+				template = loader.get_template('error.html') #---------Buscame-------------
 				context = { #Diccionario que se le pasa al HTML
 					'error': "No tiene programa academico asignado",
 				}
@@ -351,14 +364,16 @@ def gestionarCursos(request):
 			template = loader.get_template('cursos.html')
 			
 			context = {
-				'cursos' : cursos
+				'cursos' : cursos,
+				'puedoeliminar' : request.user.profile.tipo == 'director'
 			}
 			return HttpResponse(template.render(context, request))
 		elif(request.user.profile.tipo == 'profesor'):
-			curso = Curso.objects.filter(docente_id=request.user.pk)
+			cursos = Curso.objects.filter(docente_id=request.user.pk)
 			template = loader.get_template('cursos.html') #Modificar template para gestion del director
 			context = { #Diccionario que se le pasa al HTML
-				'cursos': cursos
+				'cursos': cursos,
+				'puedoeliminar' : request.user.profile.tipo == 'director'
 			}
 			return HttpResponse(template.render(context, request))
 		else:
@@ -370,17 +385,37 @@ def agregarCurso(request):
 	factory = Factory()
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'director'):
+			try:
+				programa = Programa.objects.get(director_id=request.user.id)
+			except Programa.DoesNotExist:
+				template = loader.get_template('error.html') #---------Buscame-------------
+				context = { #Diccionario que se le pasa al HTML
+					'error': "No tiene programa academico asignado",
+				}
+				return HttpResponse(template.render(context, request))
 			if(request.method == 'POST'):
+				#agregar un curso a su prpgrama academico
 				form = factory.crearFormulario('curso', request)
+				profileQuery = Profile.objects.filter(tipo="profesor")
+				qs = User.objects.filter(profile__in=profileQuery).order_by('id')
+				form.fields['docente'].queryset=qs;
+				form.fields['programa'].initial = programa #programa del director
+				form.fields['programa'].widget = forms.HiddenInput()
 				if form.is_valid():
 					curso = form.save()
 					curso.save()
 					return HttpResponseRedirect('/cursos')
 			else:
 				form = factory.crearFormulario('curso')
+				profileQuery = Profile.objects.filter(tipo="profesor")
+				qs = User.objects.filter(profile__in=profileQuery).order_by('id')
+				form.fields['docente'].queryset=qs;
+				form.fields['programa'].initial = programa #programa del director
+				form.fields['programa'].widget = forms.HiddenInput()
 			template = loader.get_template('agregarCurso.html')
 			context = {
-				'form' : form
+				'form' : form,
+				'programa' : programa
 			}
 			return HttpResponse(template.render(context, request))
 		else:
@@ -396,6 +431,12 @@ def modificarCurso(request, codigo):
 			if(request.method == 'POST'):
 				#curso = Curso.objects.get(codigo=codigo)
 				form = CursoForm(data = request.POST or None , instance=curso)
+				profileQuery = Profile.objects.filter(tipo="profesor")
+				qs = User.objects.filter(profile__in=profileQuery).order_by('id')
+				form.fields['docente'].queryset=qs;
+				form.fields['codigo'].widget = forms.HiddenInput()
+				form.fields['programa'].initial = programa #programa del director
+				form.fields['programa'].widget = forms.HiddenInput()
 				if form.is_valid():
 					form.save()
 					return HttpResponseRedirect('/cursos')
@@ -408,7 +449,12 @@ def modificarCurso(request, codigo):
 					return HttpResponse(template.render(context, request))
 			
 			form = CursoForm(instance = curso)
+			profileQuery = Profile.objects.filter(tipo="profesor")
+			qs = User.objects.filter(profile__in=profileQuery).order_by('id')
+			form.fields['docente'].queryset=qs;
 			form.fields['codigo'].widget = forms.HiddenInput()
+			form.fields['programa'].initial = programa #programa del director
+			form.fields['programa'].widget = forms.HiddenInput()
 			template = loader.get_template('modificarCurso.html')
 	
 			context = {
@@ -432,7 +478,12 @@ def eliminarCurso(request, codigo):
 					curso.delete()
 				return redirect('/cursos')
 			else:
-				return redirect('/cursos')#Mostrar el template para eliminar
+				template = loader.get_template('confirmar.html')
+				texto = "¿Seguro que desea borrar " + curso.nombre + " ?:"
+				context = { #Diccionario que se le pasa al HTML
+				'texto' : texto
+				}
+				return HttpResponse(template.render(context, request))
 		else:
 			return redirect('/')
 	else:
@@ -442,8 +493,14 @@ def consultarCurso(request, codigo):
 	if(request.user.is_authenticated):
 		curso = Curso.objects.get(codigo=codigo)
 		programa = Programa.objects.get(codigo=curso.programa_id)
+		form = CursoForm(instance = curso)
 		if((request.user.profile.tipo == 'director' and request.user.id == programa.director_id) or request.user.id == curso.docente_id):
-			return redirect('/cursos') #Cambiar-----------------------
+			template = loader.get_template('verCursos.html')
+			context = { #Diccionario que se le pasa al HTML
+				'form' : form,
+				'curso' : curso,
+			}
+			return HttpResponse(template.render(context, request))
 		else:
 			return redirect('/')
 	else:

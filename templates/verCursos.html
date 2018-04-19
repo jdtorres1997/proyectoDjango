@@ -1,0 +1,14 @@
+{% extends "index.html" %}
+
+{% block content %}
+	<h1 style="color:red"> Información del curso: {{curso.nombre}} </h1>
+	<table border="1">
+		{% for field in form.visible_fields %}
+			<tr>
+			  <td>{{ field.label_tag }}</td>
+			  <td>{{ field.value }} </td>
+			</tr>
+		{% endfor %}
+	</table>
+
+{% endblock %}

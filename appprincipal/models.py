@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.core.validators import MaxValueValidator, MinValueValidator 
 
 
+
 class Profile(models.Model):
 	user=models.OneToOneField(User, on_delete=models.CASCADE)
 	T_OPTION = (
@@ -37,7 +38,7 @@ class Programa(models.Model):
 
 	class Meta:
 		ordering = ('codigo',)
-    
+
 class Curso(models.Model):
 	codigo=models.CharField(max_length=10, primary_key=True)
 	nombre=models.CharField(max_length=40)

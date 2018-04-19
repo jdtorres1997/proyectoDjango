@@ -1,25 +1,37 @@
+
 {% extends "index.html" %}
 
 {% block content %}
+	<h1 style="color:red">
+		Gestion de usuarios:
+	</h1>
+	<table border="1">
+		{% for u in usuarios %}
 
-	<h1>Gestion de usuarios</h1>
+			<tr>
+				<td>
+				{{ u.first_name}}  - {{ u.username }}
+				</td>
 
-	
-		
-		
-	<a href="/usuarios/new">Agregar Usuario</a>
-	<h1></h1>
-	<a href="/">Inicio</a>
-	<ul>
-	{% for u in usuarios %}
-		<li>
-			<a href="/usuarios/consultar/{{ u.pk }}">
-			{{ u.username }} 
-			</a>
-		</li>
-	{% endfor %}
-	
-	</ul>
-	
+				<td>
+				<a href="/usuarios/consultar/{{ u.id }}"> 
+					<font color="red"><i class="small material-icons">info</i></font>
+				</a>
+				</td>
+
+				<td>
+				<a href="/usuarios/editar/{{ u.id }}"> 
+					<font color="red"><i class="small material-icons">edit</i> </font>
+				</a>
+				</td>
+				<td>
+				<a href="/usuarios/eliminar/{{ u.id }}"> 
+					<font color="red"><i color="red" class="small material-icons">delete</i></font>
+				</a> 
+				</td>
+
+			</tr>
+		{% endfor %}
+	</table>
 
 {% endblock %}

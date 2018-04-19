@@ -17,6 +17,16 @@ class CursoForm(forms.ModelForm):
 		model = Curso
 		fields = '__all__'
 
+	def clean(self):
+		magistral = self.cleaned_data['horas_clase_magistral']
+		independiente = self.cleaned_data['horas_estudio_independiente']
+		cred = self.cleaned_data['creditos']
+		print(magistral)
+		print(independiente)
+		print(cred)
+		if(magistral + independiente != cred*3):
+			raise forms.ValidationError("Verifique los creditos y las horas de trabajo individual y magistral")
+
 class UserForm(forms.ModelForm):
 	class Meta:
 		password=forms.PasswordInput()

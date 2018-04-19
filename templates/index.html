@@ -27,15 +27,25 @@
                   </div>
                </li>
                {% endif %}
-               {% if user.profile.tipo == 'docente' or user.profile.tipo == 'director' %}
+               {% if user.profile.tipo == 'profesor' or user.profile.tipo == 'director' %}
                <li>
                   <div class="collapsible-header"><i class="material-icons">description</i>Cursos</div>
                   <div class="collapsible-body">
                      <div class="collection">
-                        <a href="/programas/new" class="collection-item">Agregar Cursos</a>
-                        <a href="/programas" class="collection-item">Gestionar Cursos</a>
+                        {% if user.profile.tipo == 'director' %}
+                        <a href="/cursos/new" class="collection-item">Agregar Cursos</a>
+                        {%endif%}
+                        <a href="/cursos" class="collection-item">Gestionar Cursos</a>
+
                      </div>
                   </div>
+               </li>
+               {% endif %}
+               {% if user.profile.tipo == 'director' %}
+               <li>
+                      <div class="collection">
+                        <a href="/programas" class="collection-item">Gestión mi programa</a>
+                     </div>
                </li>
                {% endif %}
                {% if user.profile.tipo == 'decano' %}
@@ -80,7 +90,7 @@
          {% if user.is_authenticated %}
          <!-- Dropdown Structure -->
          <ul id="dropdown1" class="dropdown-content">
-            <li><a href="#!">Ajustes</a></li>
+            <li><a href="/">Perfil</a></li>
             <li class="divider"></li>
             <li><a href="/logout">Salir</a></li>
          </ul>
@@ -103,7 +113,7 @@
          </nav>
       </div>
       <footer class="cuadroAbajo">
-         <p align="center">This is some text in a paragraphddd.</p>
+         <p align="center"></p>
       </footer>
    </body>
 </html>

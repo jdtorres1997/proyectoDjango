@@ -23,12 +23,15 @@
 					<font color="red"><i class="small material-icons">edit</i> </font>
 				</a>
 				</td>
-
+			{% if puedoeliminar %}
 				<td>
 				<a href="/programas/eliminar/{{ pr.codigo }}"> 
 					<font color="red"><i color="red" class="small material-icons">delete</i></font>
 				</a> 
 				</td>
+			{% endif %}
+
+
 			</tr>
 		{% endfor %}
 	</table>

@@ -1,0 +1,24 @@
+{% extends "index.html" %}
+{% load material_form %} 
+
+{% block content %}
+
+  <div class="row">
+    <div class="col s12 m7">
+      <div class="card">
+        <div class="card-image">
+          <img src="http://3.bp.blogspot.com/-75FSYTLEzBc/T1ZMEAjpBMI/AAAAAAAAAFM/fLwEQrZ6DqE/s200/Error.pnghttps://freeiconshop.com/wp-content/uploads/edd/error-flat.png">
+          <span class="card-title">Error</span>
+        </div>
+        <div class="card-content">
+          <p> {{ error }} </p>
+        </div>
+        <div class="card-action">
+          <a href="#">Sorry...</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock %}
