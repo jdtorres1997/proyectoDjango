@@ -1,12 +1,13 @@
 {% extends "index.html" %}
+{% load material_form %}
 
 {% block content %}
 
 	<h1>Agregar Curso</h1>
 	<form method="POST" enctype="multipart/form-data">
 		{% csrf_token %}
-		{{ form.as_p }}
-		<button type='submit'>Submit</button>
+		{% form form=form %}{% endform %}
+		<button type="submit" name="_submit" class="btn">Guardar</button>
 	</form>
 	
 	<a href="/usuarios">Inicio</a>
