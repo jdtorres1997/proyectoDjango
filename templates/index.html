@@ -1,124 +1,109 @@
 <!DOCTYPE html>
 <html >
-<head>
-  {% load staticfiles %}
-  {% load material_form %}
-  <meta charset="UTF-8">
-  <title>Los Arandanos</title>
-  {% include 'material/includes/material_css.html' %}
-  <script src="{% static 'material/js/jquery.js' %}"></script>
-  {% include 'material/includes/material_js.html' %}
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-</head>
-
-<body>
-
-<div class="cuadradoGigante">
-
-  <div class="container">
-
-    <ul class="collapsible">
-
-    <li>
-      <div class="collapsible-header"><i class="material-icons">description</i>Usuarios</div>
-      <div class="collapsible-body">
-        <div class="collection">
-        <a href="#!" class="collection-item">Agregar Usuarios</a>
-        <a href="#!" class="collection-item">Gestionar Usuarios</a>
-        </div>
+   <head>
+      {% load staticfiles %}
+      {% load material_form %}
+      <meta charset="UTF-8">
+      <title>Los Arandanos</title>
+      {% include 'material/includes/material_css.html' %}
+      <script src="{% static 'material/js/jquery.js' %}"></script>
+      {% include 'material/includes/material_js.html' %}
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+      <link rel="stylesheet" href="{% static 'css/style.css' %}">
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+   </head>
+   <body>
+      <div class="cuadradoGigante">
+         <div class="container">
+            <ul class="collapsible">
+               {% if user.profile.tipo == 'admin' %}
+               <li>
+                  <div class="collapsible-header"><i class="material-icons">description</i>Usuarios</div>
+                  <div class="collapsible-body">
+                     <div class="collection">
+                        <a href="usuarios/new" class="collection-item">Agregar Usuarios</a>
+                        <a href="/usuarios" class="collection-item">Gestionar Usuarios</a>
+                     </div>
+                  </div>
+               </li>
+               {% endif %}
+               {% if user.profile.tipo == 'docente' or user.profile.tipo == 'director' %}
+               <li>
+                  <div class="collapsible-header"><i class="material-icons">description</i>Cursos</div>
+                  <div class="collapsible-body">
+                     <div class="collection">
+                        <a href="/programas/new" class="collection-item">Agregar Cursos</a>
+                        <a href="/programas" class="collection-item">Gestionar Cursos</a>
+                     </div>
+                  </div>
+               </li>
+               {% endif %}
+               {% if user.profile.tipo == 'decano' %}
+               <li>
+                  <div class="collapsible-header"><i class="material-icons">description</i>Programas</div>
+                  <div class="collapsible-body">
+                     <div class="collection">
+                        <a href="/programas/new" class="collection-item">Agregar Programas</a>
+                        <a href="/programas" class="collection-item">Gestion Programas</a>
+                     </div>
+                  </div>
+               </li>
+               {% endif %}
+            </ul>
+            <script type="text/javascript"> 
+               // Or with jQuery
+               $(document).ready(function(){
+                 $('.collapsible').collapsible();
+               });
+               
+            </script>
+            </ul>
+         </div>
+         <div class="derecha">
+            <div class="contenido_derecha">
+               <a href="{{request.META.HTTP_REFERER}}">
+               <font color="red"><i class="tiny material-icons">arrow_back</i> </font>
+               Atras</a>
+               {% block content %} {% endblock %}
+            </div>
+         </div>
       </div>
-    </li>
-
-    <li>
-      <div class="collapsible-header"><i class="material-icons">description</i>Cursos</div>
-      <div class="collapsible-body">
-        <div class="collection">
-        <a href="#!" class="collection-item">Agregar Cursos</a>
-        <a href="#!" class="collection-item">Gestionar Cursos</a>
-        </div>
       </div>
-    </li>
+      <div class="navbar">
+         <script type="text/javascript"> 
+            $(document).ready(function(){
+              $(".dropdown-trigger").dropdown();
+            });
+            
+         </script>
 
+         {% if user.is_authenticated %}
+         <!-- Dropdown Structure -->
+         <ul id="dropdown1" class="dropdown-content">
+            <li><a href="#!">Ajustes</a></li>
+            <li class="divider"></li>
+            <li><a href="/logout">Salir</a></li>
+         </ul>
+         {% endif %}
 
-    <li>
-      <div class="collapsible-header"><i class="material-icons">description</i>Programas</div>
-      <div class="collapsible-body">
-        <div class="collection">
-        <a href="#!" class="collection-item">Agregar Programas</a>
-        <a href="#!" class="collection-item">Gestion Programas</a>
-        </div>
+         <nav>
+            <div class="nav-wrapper">
+               <img src="https://k62.kn3.net/2/E/F/A/A/4/105.png" height="100">
+               <ul class="right hide-on-med-and-down">
+                <li><i class="material-icons right">person</i></li>
+                  <!-- Dropdown Trigger -->
+                  <li>
+                    <a class="dropdown-trigger" href="#!" data-target="dropdown1">
+                    Mi Cuenta
+                    <i class="material-icons right">arrow_drop_down</i>
+                    </a>
+                  </li>
+               </ul>
+            </div>
+         </nav>
       </div>
-    </li>
-
-    <li>
-      <div class="collapsible-header"><i class="material-icons">description</i>Cursos</div>
-      <div class="collapsible-body">
-        <div class="collection">
-        <a href="#!" class="collection-item">Consultar Cursos</a>
-        </div>
-      </div>
-    </li>
-  </ul>
-
-<script type="text/javascript"> 
-
-  // Or with jQuery
-  $(document).ready(function(){
-    $('.collapsible').collapsible();
-  });
-
-</script>
-
-    </ul>
-  </div> 
-
-  <div class="derecha">
-    <div class="contenido_derecha">
-  
-      {% block login_content %} {% endblock %}
-      {% block content %} {% endblock %}
-    
-    </div>
-  </div>
-</div>
-
-</div>
-
-<div class="navbar">
-<script type="text/javascript"> 
-  $(document).ready(function(){
-    $(".dropdown-trigger").dropdown();
-  });
-
-</script>
-  <!-- Dropdown Structure -->
-<ul id="dropdown1" class="dropdown-content">
-  <li><a href="#!">Ajustes</a></li>
-  <li class="divider"></li>
-  <li><a href="#!">Salir</a></li>
-</ul>
-
-<nav>
-  <div class="nav-wrapper">
-    <img src="https://k62.kn3.net/2/E/F/A/A/4/105.png" height="100">
-    <ul class="right hide-on-med-and-down">
-
-      <!-- Dropdown Trigger -->
-      <li><a class="dropdown-trigger" href="#!" data-target="dropdown1">Mi Cuenta<i class="material-icons right">arrow_drop_down</i></a></li>
-    </ul>
-  </div>
-</nav>
-</div>
-
-
-
- <footer class="cuadroAbajo">
-<p align="center">This is some text in a paragraphddd.</p>
-</footer>
-
-
-</body>
+      <footer class="cuadroAbajo">
+         <p align="center">This is some text in a paragraphddd.</p>
+      </footer>
+   </body>
 </html>

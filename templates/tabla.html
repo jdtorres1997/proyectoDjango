@@ -1,15 +1,16 @@
 {% extends "index.html" %}
 
 {% block content %}
-	<a href="/programas"> Atras </a>
-	<h1>Ver tabla </h1>
+	<h1 style="color:red"> Información: </h1>
 	<table border="1">
-		{% for field in form %}
+		{% for field in form.visible_fields %}
 			<tr>
 			  <td>{{ field.label_tag }}</td>
 			  <td>{{ field.value }} </td>
 			</tr>
 		{% endfor %}
+		<td><label>:Director:</label></td>
+		<td> {{ programa.director.first_name}} - {{ programa.director}} </td>
 	</table>
 
 {% endblock %}

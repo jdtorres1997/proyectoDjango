@@ -63,7 +63,7 @@ form fieldset input[type="text"], input[type="password"] {
 }
 
 form fieldset input[type="submit"] {
-	background-color: #008dde;
+	background-color: #D51B23;
 	border: none;
 	border-radius: 3px;
 	color: #f4f4f4;
@@ -71,7 +71,7 @@ form fieldset input[type="submit"] {
 	font-family: inherit;
 	height: 50px;
 	text-transform: uppercase;
-	width: 300px;
+	width: 280px;
   -webkit-appearance:none;
 }
 
@@ -109,7 +109,7 @@ form fieldset a:hover { text-decoration: underline; }
 }
 
 .facebook {
-	background: #0079ce;
+	background: red;
 	border: none;
 	border-radius: 0px 3px 3px 0px;
 	color: #f4f4f4;

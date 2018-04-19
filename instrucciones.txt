@@ -53,3 +53,6 @@ Se debe crear el super admin y darle privilegios desde pgadmin asi:
 INSTALAR PARA FRONT END
 pip install django-material 
 http://forms.viewflow.io/
+
+pip install six
+pip install django-autocomplete-light

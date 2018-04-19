@@ -10,6 +10,19 @@ from .models import Curso
 from .forms import CursoForm
 from .forms import UserForm
 from .forms import TipoForm
+from dal import autocomplete
+from .models import Profile
+
+class DirectorAutocomplete(autocomplete.Select2QuerySetView):
+	def get_queryset(self):
+		# Don't forget to filter out results depending on the visitor !
+		#if not self.request.user.is_authenticated():
+		profileQuery = Profile.objects.filter(tipo="director")
+		qs = User.objects.filter(profile__in=profileQuery).order_by('id')
+		return qs
+		if self.q:
+			qs = qs.filter(name__istartswith=self.q)
+		return qs
 
 # Create your views here.
 def autenticar(request):
@@ -34,7 +47,19 @@ def autenticar(request):
 	return HttpResponse(template.render(context, request))
 
 def inicio(request):
-	return render(request, 'inicio.html', {})
+	if(request.user.is_authenticated):
+			usuario = request.user
+			form = UserForm(instance=usuario)
+			formT = TipoForm(instance=usuario.profile)
+			template = loader.get_template('verPerfil.html')
+			context = {
+				'texto' : "Información de mi perfil:",
+				'form' : form,
+				'tipo' : formT
+			}
+			return HttpResponse(template.render(context, request))
+	else:
+		return redirect('/login')
 
 #------------------Crud usuarios--------------
 def agregarusuario(request):
@@ -61,6 +86,7 @@ def agregarusuario(request):
 				'form' : form,
 				'tipo' : formT, 
 			}
+			form.fields['password'] = forms.CharField(widget=forms.PasswordInput)
 			return HttpResponse(template.render(context, request))
 		else:
 			return redirect('/')
@@ -84,7 +110,16 @@ def gestionarusuarios(request):
 def detalleUsuario(request, pk):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'admin'):
-			return redirect('/usuarios') #Cambiar-----------------------
+			usuario = get_object_or_404(User, pk=pk)
+			form = UserForm(instance=usuario)
+			formT = TipoForm(instance=usuario.profile)
+			template = loader.get_template('verPerfil.html')
+			context = {
+				'texto' : "Perfil del usuario:",
+				'form' : form,
+				'tipo' : formT
+			}
+			return HttpResponse(template.render(context, request))
 		else:
 			return redirect('/')
 	else:
@@ -96,10 +131,10 @@ def modificarUsuario(request, pk):
 			usuario = get_object_or_404(User, pk=pk)
 			if(request.method == 'POST'):
 				form = UserForm(request.POST, instance=usuario)
+				form.fields['password'].widget = forms.HiddenInput()
 				formT = TipoForm(request.POST, instance=usuario)
 				username = request.POST.get('username', None)
 				name = request.POST.get('first_name', None)
-				password = request.POST.get('password', None)
 				email = request.POST.get('email', None)
 				tipo = request.POST.get('tipo', None)
 				if form.is_valid() and formT.is_valid():
@@ -111,7 +146,6 @@ def modificarUsuario(request, pk):
 						usuario.last_name = name
 					if(email != ""):
 						usuario.email = email
-					usuario.set_password(password)
 					usuario.save()
 					return HttpResponseRedirect('/usuarios')
 				else:
@@ -124,6 +158,7 @@ def modificarUsuario(request, pk):
 			else:
 				
 				form = UserForm(instance=usuario)
+				form.fields['password'].widget = forms.HiddenInput()
 				formT = TipoForm(instance=usuario.profile)
 				template = loader.get_template('modificarUsuario.html')
 				context = { #Diccionario que se le pasa al HTML
@@ -141,15 +176,19 @@ def modificarUsuario(request, pk):
 def agregarprograma(request):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'decano'):
+			template = loader.get_template('agregarPrograma.html')
+			profileQuery = Profile.objects.filter(tipo="director")
+			qs = User.objects.filter(profile__in=profileQuery).order_by('id')
+			form = ProgramaForm(request.POST, request.FILES)
+			form.fields['director'].queryset=qs;
 			if request.method == 'POST':
-				form = ProgramaForm(request.POST, request.FILES)
 				if form.is_valid():
 					programa = form.save()
 					programa.save()
 					return HttpResponseRedirect('/programas')
 			else:
 				form = ProgramaForm()
-			template = loader.get_template('agregarPrograma.html')
+				form.fields['director'].queryset=qs;
 			context = {
 				'form' : form
 			}
@@ -182,19 +221,23 @@ def gestionarprogramas(request):
 		return redirect('/login')
 
 def editarPrograma(request, codigo): #Falta revisar html
-
 	if(request.user.is_authenticated):
 		programa = Programa.objects.get(codigo=codigo)
 		if((request.user.profile.tipo == 'decano') or (request.user.id == programa.director_id)):
+			profileQuery = Profile.objects.filter(tipo="director")
+			qs = User.objects.filter(profile__in=profileQuery).order_by('id')
 			if request.method == 'POST':
 				#Actualiza
 				#programa = Programa.objects.get(codigo=codigo)
 				form = ProgramaForm(request.POST, instance=programa)
+				form.fields['director'].queryset=qs;
 				form.fields['codigo'].widget = forms.HiddenInput()
 				if form.is_valid():
 					form.save()
 					return HttpResponseRedirect('/programas')
 				else:
+					form.fields['codigo'].widget = forms.HiddenInput()
+					form.fields['director'].queryset=qs;
 					template = loader.get_template('editarPrograma.html')
 					context = {
 					'form' : form,
@@ -205,6 +248,7 @@ def editarPrograma(request, codigo): #Falta revisar html
 				#programa =  Programa.objects.get(codigo=codigo)
 				form = ProgramaForm(instance=programa)
 				form.fields['codigo'].widget = forms.HiddenInput()
+				form.fields['director'].queryset=qs;
 				template = loader.get_template('editarPrograma.html')
 				context = { #Diccionario que se le pasa al HTML
 				'form': form,
@@ -246,9 +290,11 @@ def verPrograma(request,codigo):
 			#Tabla a HTML
 			#programa = Programa.objects.get(codigo=codigo)
 			form = ProgramaForm(instance=programa)
+			form.fields['director'].widget = forms.HiddenInput()
 			template = loader.get_template('tabla.html')
 			context = { #Diccionario que se le pasa al HTML
-				'form' : form
+				'form' : form,
+				'programa' : programa,
 			}
 			return HttpResponse(template.render(context, request))
 		else:

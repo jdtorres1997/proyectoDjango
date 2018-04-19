@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.validators import MaxValueValidator, MinValueValidator 
+
 
 class Profile(models.Model):
 	user=models.OneToOneField(User, on_delete=models.CASCADE)
@@ -26,8 +28,8 @@ class Programa(models.Model):
 	codigo = models.CharField(max_length=10, primary_key=True)
 	nombre_programa = models.CharField(max_length=50)
 	escuela = models.CharField(max_length=40)
-	numero_semestres =  models.IntegerField()
-	numero_creditos_graduacion = models.IntegerField()
+	numero_semestres =  models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(12)])
+	numero_creditos_graduacion = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(200)])
 	director = models.ForeignKey(User, on_delete=models.CASCADE, default=False)
 
 	def __str__(self): 

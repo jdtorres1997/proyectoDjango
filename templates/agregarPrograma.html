@@ -2,8 +2,9 @@
 {% load material_form %} 
 
 {% block content %}
-<a href="/programas"> Atras </a>
-	<h1> Agregar Programa </h1>
+	<h1 style="color:red">
+		Agregar programa
+	</h1>
 	<form method="POST" enctype="multipart/form-data">
 		{% csrf_token %}
 		{% form form=form %}{% endform %}

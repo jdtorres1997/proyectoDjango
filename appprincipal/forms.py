@@ -6,12 +6,12 @@ from .models import Programa
 from .models import Curso
 from .models import Profile
 from django.contrib.auth.models import User
+from dal import autocomplete
 
 class ProgramaForm(forms.ModelForm):
 	class Meta:
 		model = Programa
-		fields = '__all__'
-    
+		fields = '__all__'    
 class CursoForm(forms.ModelForm):
 	class Meta:
 		model = Curso

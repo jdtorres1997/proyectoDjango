@@ -2,7 +2,7 @@
 {% load material_form %} 
 
 {% block content %}
-	<h1> ¿Desea borrar  {{ pr.nombre_programa }}  - {{ pr.codigo }} ? </h1>
+	<h1 style="color:red"> ¿Desea borrar  {{ pr.nombre_programa }}? </h1>
 	<form method="POST" enctype="multipart/form-data">
 		{% csrf_token %}
 		<button name="opcion" type='submit' value="no" class="btn">No</button>

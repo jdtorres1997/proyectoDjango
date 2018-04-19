@@ -1,9 +1,8 @@
 {% extends "index.html" %}
 
 {% block content %}
-<a href="/"> Atras </a>
 	<h1 style="color:red">
-		Gestion de programas
+		Gestion de programas:
 	</h1>
 	<table border="1">
 		{% for pr in programas %}
@@ -15,7 +14,7 @@
 
 				<td>
 				<a href="/programas/ver/{{ pr.codigo }}"> 
-					<font color="red"><i class="small material-icons">add</i></font>
+					<font color="red"><i class="small material-icons">info</i></font>
 				</a>
 				</td>
 
