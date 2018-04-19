@@ -4,14 +4,8 @@ from django.contrib.auth import views as auth_views
 from django.conf.urls import url
 from django.conf.urls import include
 from material.frontend import urls as frontend_urls
-from appprincipal.views import DirectorAutocomplete
 
 urlpatterns = [
-    url(
-        r'^director-autocomplete/$',
-        DirectorAutocomplete.as_view(),
-        name='director-autocomplete',
-    ),
 	url(r'', include(frontend_urls)),
 	path('login', views.autenticar, name='Autentication'),
 	path('', views.inicio, name='inicio'),

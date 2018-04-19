@@ -10,20 +10,31 @@ from .models import Curso
 from .forms import CursoForm
 from .forms import UserForm
 from .forms import TipoForm
-from dal import autocomplete
 from .models import Profile
 
-class DirectorAutocomplete(autocomplete.Select2QuerySetView):
-	def get_queryset(self):
-		# Don't forget to filter out results depending on the visitor !
-		#if not self.request.user.is_authenticated():
-		profileQuery = Profile.objects.filter(tipo="director")
-		qs = User.objects.filter(profile__in=profileQuery).order_by('id')
-		return qs
-		if self.q:
-			qs = qs.filter(name__istartswith=self.q)
-		return qs
-
+class Factory:
+	def crearFormulario(self, tipo, request=None):
+		if(tipo == 'user'):
+			if(request != None):
+				return UserForm(request.POST)
+			else:
+				return UserForm()
+		elif(tipo == 'tipo'):
+			if(request != None):
+				return TipoForm(request.POST)
+			else:
+				return TipoForm()
+		elif(tipo == 'programa'):
+			if(request != None):
+				return ProgramaForm(request.POST)
+			else:
+				return ProgramaForm()
+		elif(tipo == 'curso'):
+			if(request != None):
+				return CursoForm(request.POST)
+			else:
+				return CursoForm()
+			
 # Create your views here.
 def autenticar(request):
 	template = loader.get_template('login.html')
@@ -63,11 +74,12 @@ def inicio(request):
 
 #------------------Crud usuarios--------------
 def agregarusuario(request):
+	factory = Factory()
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'admin'):
 			if(request.method == 'POST'):
-				form = UserForm(request.POST, request.FILES)
-				formT = TipoForm(request.POST)
+				form = factory.crearFormulario('user', request)
+				formT = factory.crearFormulario('tipo', request)
 				username = request.POST.get('username', None)
 				name = request.POST.get('first_name', None)
 				password = request.POST.get('password', None)
@@ -79,8 +91,8 @@ def agregarusuario(request):
 					user.save()
 					return HttpResponseRedirect('/usuarios')
 			else:
-				form = UserForm()
-				formT = TipoForm()
+				form = factory.crearFormulario('user')
+				formT = factory.crearFormulario('tipo')
 			template = loader.get_template('agregarUsuario2.html')
 			context = {
 				'form' : form,
@@ -174,12 +186,13 @@ def modificarUsuario(request, pk):
 
 #-------------Crud programas------------------
 def agregarprograma(request):
+	factory = Factory()
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'decano'):
 			template = loader.get_template('agregarPrograma.html')
 			profileQuery = Profile.objects.filter(tipo="director")
 			qs = User.objects.filter(profile__in=profileQuery).order_by('id')
-			form = ProgramaForm(request.POST, request.FILES)
+			form = factory.crearFormulario('programa', request)
 			form.fields['director'].queryset=qs;
 			if request.method == 'POST':
 				if form.is_valid():
@@ -187,7 +200,7 @@ def agregarprograma(request):
 					programa.save()
 					return HttpResponseRedirect('/programas')
 			else:
-				form = ProgramaForm()
+				form = factory.crearFormulario('programa')
 				form.fields['director'].queryset=qs;
 			context = {
 				'form' : form
@@ -209,7 +222,7 @@ def gestionarprogramas(request):
 			}
 			return HttpResponse(template.render(context, request))
 		elif(request.user.profile.tipo == 'director'):
-			programa = Programa.objects.filter(director_id=request.user.pk)
+			programas = Programa.objects.filter(director_id=request.user.pk)#-------------Buscame----------------
 			template = loader.get_template('programas.html') #Modificar template para gestion del director
 			context = { #Diccionario que se le pasa al HTML
 				'programas': programas
@@ -326,7 +339,14 @@ def eliminarUsuario(request, pk):
 def gestionarCursos(request):
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'director'):
-			programa = Programa.objects.get(director_id=request.user.id)
+			try:
+				programa = Programa.objects.get(director_id=request.user.id)
+			except Programa.DoesNotExist:
+				template = loader.get_template('index.html') #---------Buscame-------------
+				context = { #Diccionario que se le pasa al HTML
+					'error': "No tiene programa academico asignado",
+				}
+				return HttpResponse(template.render(context, request))
 			cursos = Curso.objects.filter(programa_id=programa.codigo)
 			template = loader.get_template('cursos.html')
 			
@@ -347,16 +367,17 @@ def gestionarCursos(request):
 		return redirect('/')
 
 def agregarCurso(request):
+	factory = Factory()
 	if(request.user.is_authenticated):
 		if(request.user.profile.tipo == 'director'):
 			if(request.method == 'POST'):
-				form = CursoForm(request.POST)
+				form = factory.crearFormulario('curso', request)
 				if form.is_valid():
 					curso = form.save()
 					curso.save()
 					return HttpResponseRedirect('/cursos')
 			else:
-				form = CursoForm()
+				form = factory.crearFormulario('curso')
 			template = loader.get_template('agregarCurso.html')
 			context = {
 				'form' : form

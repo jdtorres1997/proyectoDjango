@@ -44,8 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'material',
     'material.frontend',
-    'dal',
-    'dal_select2',
 ]
 
 AUTHENTICATION_BACKENDS = (
